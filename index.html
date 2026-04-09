@@ -1,0 +1,2113 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TPM Mold Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #21262d;
+  --surface3: #30363d;
+  --border: #30363d;
+  --accent: #00d9ff;
+  --accent2: #7c3aed;
+  --accent3: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --text3: #6e7681;
+  --font: 'IBM Plex Sans Thai', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px;}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo-text{font-size:16px;font-weight:700;letter-spacing:0.5px;}
+.logo-sub{font-size:11px;color:var(--text2);font-family:var(--mono);}
+.header-right{display:flex;align-items:center;gap:8px;}
+.gs-url-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:12px;width:320px;font-family:var(--mono);}
+.gs-url-input:focus{outline:none;border-color:var(--accent);}
+.btn-connect{background:var(--accent);color:#000;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;}
+.btn-connect:hover{opacity:.85;}
+.conn-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--surface3);}
+.dot.connected{background:var(--accent3);box-shadow:0 0 6px var(--accent3);}
+.dot.error{background:var(--danger);}
+
+/* LAYOUT */
+.layout{display:flex;height:calc(100vh - 60px);}
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);padding:16px 0;flex-shrink:0;overflow-y:auto;}
+.nav-section{padding:0 12px 8px;font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-top:16px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;transition:.15s;font-size:13px;color:var(--text2);border-left:2px solid transparent;margin:1px 0;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:rgba(0,217,255,.08);color:var(--accent);border-left-color:var(--accent);}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;}
+
+/* MAIN CONTENT */
+.main{flex:1;overflow-y:auto;padding:24px;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* PAGE HEADER */
+.page-header{margin-bottom:24px;}
+.page-title{font-size:22px;font-weight:700;}
+.page-subtitle{font-size:13px;color:var(--text2);margin-top:4px;}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.stat-card.blue::before{background:var(--accent);}
+.stat-card.purple::before{background:var(--accent2);}
+.stat-card.green::before{background:var(--accent3);}
+.stat-card.yellow::before{background:var(--warning);}
+.stat-card.red::before{background:var(--danger);}
+.stat-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;}
+.stat-value{font-size:32px;font-weight:700;font-family:var(--mono);}
+.stat-card.blue .stat-value{color:var(--accent);}
+.stat-card.purple .stat-value{color:var(--accent2);}
+.stat-card.green .stat-value{color:var(--accent3);}
+.stat-card.yellow .stat-value{color:var(--warning);}
+.stat-card.red .stat-value{color:var(--danger);}
+.stat-icon{position:absolute;bottom:8px;right:12px;font-size:28px;opacity:.2;}
+
+/* SECTION */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:20px;overflow:hidden;}
+.section-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.section-title{font-size:14px;font-weight:600;}
+.section-body{padding:20px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:.2s;font-family:var(--font);}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#00b8d9;}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover{background:var(--surface3);}
+.btn-success{background:var(--accent3);color:#000;}
+.btn-warning{background:var(--warning);color:#000;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn-icon{padding:6px;border-radius:6px;}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:var(--surface2);padding:10px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text2);border-bottom:1px solid var(--border);}
+td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.mold-name{font-weight:600;color:var(--text);}
+.asset-no{font-family:var(--mono);font-size:12px;color:var(--accent);}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-active{background:rgba(16,185,129,.15);color:var(--accent3);}
+.badge-inactive{background:rgba(107,114,128,.15);color:#9ca3af;}
+.badge-critical{background:rgba(239,68,68,.15);color:var(--danger);animation:pulse 2s infinite;}
+.badge-warning{background:rgba(245,158,11,.15);color:var(--warning);}
+.badge-normal{background:rgba(0,217,255,.15);color:var(--accent);}
+.badge-planned{background:rgba(124,58,237,.15);color:var(--accent2);}
+.badge-completed{background:rgba(16,185,129,.15);color:var(--accent3);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+
+/* SHOT PROGRESS */
+.shot-bar-wrap{min-width:120px;}
+.shot-bar{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-bottom:3px;}
+.shot-fill{height:100%;border-radius:3px;transition:.3s;}
+.shot-pct{font-size:11px;font-family:var(--mono);}
+
+/* FORMS */
+.form-grid{display:grid;gap:16px;}
+.form-grid-2{grid-template-columns:1fr 1fr;}
+.form-grid-3{grid-template-columns:1fr 1fr 1fr;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;}
+.form-control{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:13px;font-family:var(--font);transition:.2s;}
+.form-control:focus{outline:none;border-color:var(--accent);background:var(--surface3);}
+.form-control::placeholder{color:var(--text3);}
+select.form-control option{background:var(--surface2);}
+textarea.form-control{resize:vertical;min-height:80px;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;align-items:center;justify-content:center;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:90%;max-width:640px;max-height:90vh;overflow-y:auto;}
+.modal-header{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);padding-bottom:16px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-close{background:var(--surface2);border:none;color:var(--text2);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:.2s;}
+.modal-close:hover{background:var(--surface3);color:var(--text);}
+.modal-body{padding:20px 24px;}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
+
+/* TASK LIST */
+.task-list{display:flex;flex-direction:column;gap:8px;}
+.task-item{display:flex;align-items:center;gap:10px;background:var(--surface2);padding:10px 14px;border-radius:8px;border:1px solid var(--border);}
+.task-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);}
+.task-item-text{flex:1;font-size:13px;}
+.task-remove{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0 4px;transition:.2s;}
+.task-remove:hover{color:var(--danger);}
+.task-add{display:flex;gap:8px;margin-top:10px;}
+.task-add input{flex:1;}
+
+/* IMAGE UPLOAD */
+.img-upload-zone{border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:.2s;color:var(--text3);}
+.img-upload-zone:hover,.img-upload-zone.drag{border-color:var(--accent);color:var(--accent);background:rgba(0,217,255,.04);}
+.img-upload-zone .upload-icon{font-size:36px;margin-bottom:8px;}
+.img-preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:12px;}
+.img-preview{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.img-preview img{width:100%;height:100%;object-fit:cover;}
+.img-preview .img-remove{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.7);border:none;color:#fff;width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.img-uploading{display:flex;align-items:center;justify-content:center;height:100%;background:var(--surface2);font-size:11px;color:var(--text3);}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.4);transform:translateX(120%);transition:.3s;pointer-events:auto;min-width:260px;}
+.toast-item.show{transform:translateX(0);}
+.toast-item.success{border-left:3px solid var(--accent3);}
+.toast-item.error{border-left:3px solid var(--danger);}
+.toast-item.info{border-left:3px solid var(--accent);}
+.toast-item.warning{border-left:3px solid var(--warning);}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:48px;color:var(--text2);flex-direction:column;gap:12px;}
+.spinner{width:32px;height:32px;border:3px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* DETAIL PANEL */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.detail-item{background:var(--surface2);padding:12px;border-radius:8px;border:1px solid var(--border);}
+.detail-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;}
+.detail-value{font-size:14px;font-weight:600;}
+
+/* TPM CALENDAR */
+.tpm-calendar{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;margin:12px 0;}
+.tpm-month{background:var(--surface2);border-radius:6px;padding:8px 4px;text-align:center;border:1px solid var(--border);cursor:default;}
+.tpm-month.has-plan{border-color:var(--accent2);background:rgba(124,58,237,.1);}
+.tpm-month.completed{border-color:var(--accent3);background:rgba(16,185,129,.1);}
+.tpm-month.overdue{border-color:var(--danger);background:rgba(239,68,68,.1);}
+.tpm-month-label{font-size:10px;color:var(--text3);}
+.tpm-month-icon{font-size:16px;margin-top:2px;}
+
+/* HISTORY TIMELINE */
+.timeline{position:relative;padding-left:28px;}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border);}
+.tl-item{position:relative;margin-bottom:20px;}
+.tl-dot{position:absolute;left:-24px;width:12px;height:12px;border-radius:50%;border:2px solid var(--surface);top:4px;}
+.tl-dot.tpm{background:var(--accent2);}
+.tl-dot.shot{background:var(--accent);}
+.tl-dot.actual{background:var(--accent3);}
+.tl-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;}
+.tl-date{font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:4px;}
+.tl-title{font-size:13px;font-weight:600;margin-bottom:4px;}
+.tl-body{font-size:12px;color:var(--text2);}
+.tl-imgs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.tl-img{width:64px;height:64px;border-radius:6px;object-fit:cover;border:1px solid var(--border);cursor:pointer;transition:.2s;}
+.tl-img:hover{transform:scale(1.05);}
+
+/* TABS */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.tab{padding:10px 16px;font-size:13px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;transition:.2s;font-weight:500;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab:hover:not(.active){color:var(--text);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* SEARCH BAR */
+.search-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.search-input{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 14px 9px 36px;border-radius:8px;font-size:13px;font-family:var(--font);}
+.search-input:focus{outline:none;border-color:var(--accent);}
+.search-wrap{position:relative;flex:1;}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;}
+.filter-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:13px;font-family:var(--font);}
+.filter-select:focus{outline:none;border-color:var(--accent);}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:60px 20px;color:var(--text3);}
+.empty-icon{font-size:48px;margin-bottom:12px;}
+.empty-text{font-size:14px;margin-bottom:4px;}
+.empty-sub{font-size:12px;}
+
+/* MOLD CARD GRID (dashboard view) */
+.mold-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.mold-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:.2s;}
+.mold-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.mold-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.mold-card-name{font-weight:700;font-size:15px;}
+.mold-card-asset{font-family:var(--mono);font-size:11px;color:var(--accent);margin-top:2px;}
+.mold-card-shot{margin-top:10px;}
+.mold-card-shot-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px;}
+.mold-card-bar{height:8px;background:var(--surface3);border-radius:4px;overflow:hidden;}
+.mold-card-fill{height:100%;border-radius:4px;transition:.3s;}
+.mold-card-meta{display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:var(--text3);}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .form-grid-2,.form-grid-3{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .gs-url-input{width:180px;}
+}
+
+/* LIGHTBOX */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9998;align-items:center;justify-content:center;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.lightbox-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,.1);border:none;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">⚙️</div>
+    <div>
+      <div class="logo-text">TPM Mold System</div>
+      <div class="logo-sub">Total Productive Maintenance</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <input class="gs-url-input" id="gsUrl" placeholder="https://script.google.com/macros/s/YOUR_ID/exec" title="Google Apps Script URL">
+    <button class="btn-connect" onclick="connectGS()">🔗 เชื่อมต่อ</button>
+    <div class="conn-status">
+      <div class="dot" id="connDot"></div>
+      <span id="connText">ยังไม่เชื่อมต่อ</span>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="nav-section">หลัก</div>
+    <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">📊</span>Dashboard</div>
+    <div class="nav-item" onclick="showPage('molds')"><span class="icon">⚙️</span>จัดการโมล<span class="nav-badge" id="critBadge" style="display:none">0</span></div>
+    <div class="nav-section">TPM</div>
+    <div class="nav-item" onclick="showPage('shot')"><span class="icon">🎯</span>บันทึก Shot</div>
+    <div class="nav-item" onclick="showPage('autoshot')"><span class="icon">⚡</span>Auto Shot</div>
+    <div class="nav-item" onclick="showPage('tpmplan')"><span class="icon">📅</span>แผน TPM</div>
+    <div class="nav-item" onclick="showPage('actual')"><span class="icon">✅</span>บันทึก Actual</div>
+    <div class="nav-section">ประวัติ</div>
+    <div class="nav-item" onclick="showPage('history')"><span class="icon">🕐</span>ประวัติย้อนหลัง</div>
+    <div class="nav-section">ระบบ</div>
+    <div class="nav-item" onclick="initSystem()"><span class="icon">⚡</span>ติดตั้งระบบ</div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- DASHBOARD PAGE -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div class="page-title">📊 Dashboard TPM Mold</div>
+        <div class="page-subtitle">ภาพรวมสถานะโมลและแผน TPM ทั้งหมด</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card blue"><div class="stat-label">โมลทั้งหมด</div><div class="stat-value" id="statTotal">-</div><div class="stat-icon">⚙️</div></div>
+        <div class="stat-card green"><div class="stat-label">Active</div><div class="stat-value" id="statActive">-</div><div class="stat-icon">✅</div></div>
+        <div class="stat-card red"><div class="stat-label">Critical (Shot ≥90%)</div><div class="stat-value" id="statCritical">-</div><div class="stat-icon">🚨</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Warning (Shot ≥70%)</div><div class="stat-value" id="statWarning">-</div><div class="stat-icon">⚠️</div></div>
+        <div class="stat-card purple"><div class="stat-label">TPM รอดำเนินการ</div><div class="stat-value" id="statTPM">-</div><div class="stat-icon">📅</div></div>
+        <div class="stat-card green" style="cursor:pointer;" onclick="showPage('autoshot')"><div class="stat-label">⚡ Auto Shot Active</div><div class="stat-value" id="statAutoShot">-</div><div class="stat-icon">🤖</div></div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">⚙️ โมลที่ต้องดูแล (Critical/Warning)</div>
+          <button class="btn btn-secondary btn-sm" onclick="loadDashboard()">🔄 รีเฟรช</button>
+        </div>
+        <div class="section-body">
+          <div id="dashMoldCards" class="mold-cards"><div class="loading"><div class="spinner"></div><span>กำลังโหลด...</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOLDS PAGE -->
+    <div class="page" id="page-molds">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="page-title">⚙️ จัดการโมล</div>
+          <div class="page-subtitle">ข้อมูลโมลทั้งหมด พร้อมสถานะ Shot Count</div>
+        </div>
+        <button class="btn btn-primary" onclick="openAddMold()">➕ เพิ่มโมล</button>
+      </div>
+      <div class="search-bar">
+        <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-input" id="moldSearch" placeholder="ค้นหาชื่อโมล, Asset No, Vendor..." oninput="filterMolds()"></div>
+        <select class="filter-select" id="moldFilter" onchange="filterMolds()">
+          <option value="">ทุกสถานะ</option>
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+          <option value="critical">Critical</option>
+          <option value="warning">Warning</option>
+        </select>
+      </div>
+      <div class="section">
+        <div class="section-body" style="padding:0;">
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>ชื่อโมล</th><th>Asset No.</th><th>Vendor</th><th>แผนก</th>
+                <th>Shot Count</th><th>สถานะ Shot</th><th>Status</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="moldsTable"><tr><td colspan="8"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHOT PAGE -->
+    <div class="page" id="page-shot">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="page-title">🎯 Shot Count Management</div>
+          <div class="page-subtitle">บันทึกยอดผลิตด้วยตนเอง หรือตั้งค่า Auto Shot จากยอดผลิตต่อปี</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary" onclick="showPage('autoshot')" style="background:rgba(124,58,237,.15);border-color:var(--accent2);color:var(--accent2)">⚡ Auto Shot Settings</button>
+        </div>
+      </div>
+
+      <!-- AUTO SHOT STATUS BAR -->
+      <div id="autoShotBar" style="display:none;background:rgba(16,185,129,.08);border:1px solid var(--accent3);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--accent3);box-shadow:0 0 8px var(--accent3);animation:pulse 2s infinite;"></div>
+          <span style="font-size:13px;font-weight:600;color:var(--accent3)">⚡ Auto Shot กำลังทำงาน</span>
+          <span id="autoShotDesc" style="font-size:12px;color:var(--text2)"></span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <span id="autoShotNext" style="font-size:12px;color:var(--text3);font-family:var(--mono)"></span>
+          <button class="btn btn-danger btn-sm" onclick="stopAutoShot()">⏹ หยุด Auto</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">✍️ บันทึก Shot ด้วยตนเอง</div>
+        </div>
+        <div class="section-body">
+          <div class="form-grid form-grid-2">
+            <div class="form-group">
+              <label class="form-label">เลือกโมล *</label>
+              <select class="form-control" id="shotMoldId" onchange="showShotInfo()">
+                <option value="">-- เลือกโมล --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">วันที่ผลิต *</label>
+              <input type="date" class="form-control" id="shotDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ยอดการผลิต (pcs) *</label>
+              <input type="number" class="form-control" id="shotQty" placeholder="จำนวน" oninput="calcNewShot()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ผู้บันทึก</label>
+              <input type="text" class="form-control" id="shotOperator" placeholder="ชื่อผู้บันทึก">
+            </div>
+            <div class="form-group" style="grid-column:1/-1">
+              <label class="form-label">หมายเหตุ</label>
+              <input type="text" class="form-control" id="shotRemarks" placeholder="หมายเหตุ (ถ้ามี)">
+            </div>
+          </div>
+          <div id="shotInfo" style="display:none;margin-top:16px;">
+            <div class="detail-grid">
+              <div class="detail-item"><div class="detail-label">Shot ปัจจุบัน</div><div class="detail-value" id="infoCurrentShot" style="font-family:var(--mono);color:var(--accent)">-</div></div>
+              <div class="detail-item"><div class="detail-label">Shot Limit</div><div class="detail-value" id="infoShotLimit" style="font-family:var(--mono)">-</div></div>
+              <div class="detail-item"><div class="detail-label">เพิ่มอีก</div><div class="detail-value" id="infoAddShot" style="font-family:var(--mono);color:var(--accent3)">0</div></div>
+              <div class="detail-item"><div class="detail-label">Shot ใหม่ (คาดการณ์)</div><div class="detail-value" id="infoNewShot" style="font-family:var(--mono);color:var(--warning)">-</div></div>
+            </div>
+            <div style="margin-top:12px;">
+              <div class="shot-bar-wrap">
+                <div class="shot-bar" style="height:12px;border-radius:6px;"><div class="shot-fill" id="infoShotBar" style="height:100%;border-radius:6px;"></div></div>
+                <div class="shot-pct" id="infoShotPct" style="margin-top:4px;text-align:right;"></div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:20px;">
+            <button class="btn btn-primary" onclick="saveShot()">💾 บันทึก Shot</button>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">📋 ประวัติ Shot (เลือกโมล)</div>
+        </div>
+        <div class="section-body" style="padding:0;">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>วันที่</th><th>ยอดผลิต</th><th>Shot สะสม</th><th>ผู้บันทึก</th><th>หมายเหตุ</th></tr></thead>
+              <tbody id="shotHistTable"><tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text3)">เลือกโมลเพื่อดูประวัติ</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTO SHOT SETTINGS PAGE -->
+    <div class="page" id="page-autoshot">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="page-title">⚡ Auto Shot Settings</div>
+          <div class="page-subtitle">ตั้งค่ายอดผลิตต่อปี ÷ วันทำงาน = ยอดต่อวัน → รัน Auto ทุกวัน</div>
+        </div>
+        <button class="btn btn-secondary" onclick="showPage('shot')">← กลับ</button>
+      </div>
+
+      <!-- HOW IT WORKS -->
+      <div style="background:rgba(0,217,255,.06);border:1px solid rgba(0,217,255,.2);border-radius:10px;padding:14px 18px;margin-bottom:20px;">
+        <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:8px;">💡 วิธีการทำงาน Auto Shot</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.8;">
+          1. กรอก <b style="color:var(--text)">ยอดผลิตต่อปี</b> (Annual Production) และ <b style="color:var(--text)">จำนวนวันทำงาน/ปี</b><br>
+          2. ระบบคำนวณ → <b style="color:var(--accent3)">ยอดต่อวัน = ยอดผลิตต่อปี ÷ วันทำงาน</b><br>
+          3. กด <b style="color:var(--text)">เปิด Auto Shot</b> → ระบบจะบันทึก Shot อัตโนมัติ <b style="color:var(--warning)">ทุกวันที่ตั้งเวลาไว้</b><br>
+          4. หรือกด <b style="color:var(--text)">Run ทันที</b> เพื่อบันทึก Shot วันนี้ทันที
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header"><div class="section-title">⚙️ กำหนด Auto Shot ต่อโมล</div></div>
+        <div class="section-body">
+          <div class="form-grid form-grid-2">
+            <div class="form-group">
+              <label class="form-label">เลือกโมล *</label>
+              <select class="form-control" id="autoMoldId" onchange="calcAutoShot()">
+                <option value="">-- เลือกโมล --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ปีการผลิต (Year)</label>
+              <input type="number" class="form-control" id="autoProdYear" value="" placeholder="2025" oninput="calcAutoShot()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ยอดผลิตต่อปี (pcs/year) *</label>
+              <input type="number" class="form-control" id="autoAnnualQty" placeholder="เช่น 1200000" oninput="calcAutoShot()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">จำนวนวันทำงาน/ปี *</label>
+              <input type="number" class="form-control" id="autoWorkDays" placeholder="เช่น 250 วัน" value="250" oninput="calcAutoShot()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">วันที่เริ่ม Auto Shot</label>
+              <input type="date" class="form-control" id="autoStartDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">เวลาที่รัน Auto (ทุกวัน)</label>
+              <select class="form-control" id="autoRunTime">
+                <option value="08:00">08:00 น. (เริ่มกะเช้า)</option>
+                <option value="12:00">12:00 น. (เที่ยง)</option>
+                <option value="17:00" selected>17:00 น. (สิ้นวัน)</option>
+                <option value="20:00">20:00 น. (หลังเลิกงาน)</option>
+                <option value="00:00">00:00 น. (เที่ยงคืน)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ผู้รับผิดชอบ</label>
+              <input type="text" class="form-control" id="autoOperator" placeholder="ชื่อผู้รับผิดชอบ">
+            </div>
+            <div class="form-group">
+              <label class="form-label">วันหยุด (ไม่รัน Auto)</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;" id="holidayCheckboxes">
+                <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;"><input type="checkbox" id="noSat" checked> เสาร์</label>
+                <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;"><input type="checkbox" id="noSun" checked> อาทิตย์</label>
+                <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;"><input type="checkbox" id="noHoliday"> วันหยุดนักขัตฤกษ์</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- CALCULATION PREVIEW -->
+          <div id="autoCalcPreview" style="display:none;margin-top:16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;">
+            <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--accent)">📊 ผลการคำนวณ</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">
+              <div style="background:var(--surface);border-radius:8px;padding:10px;border:1px solid var(--border);">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px;">ยอดต่อปี</div>
+                <div id="previewAnnual" style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--accent)">-</div>
+              </div>
+              <div style="background:var(--surface);border-radius:8px;padding:10px;border:1px solid var(--border);">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px;">วันทำงาน</div>
+                <div id="previewDays" style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text)">-</div>
+              </div>
+              <div style="background:var(--surface);border-radius:8px;padding:10px;border:1px solid var(--border);">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px;">ยอดต่อวัน</div>
+                <div id="previewDaily" style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent3)">-</div>
+              </div>
+              <div style="background:var(--surface);border-radius:8px;padding:10px;border:1px solid var(--border);">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px;">ยอดต่อเดือน (est.)</div>
+                <div id="previewMonthly" style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--warning)">-</div>
+              </div>
+            </div>
+            <div id="previewShotAlert" style="margin-top:10px;font-size:12px;color:var(--text2);"></div>
+          </div>
+
+          <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="startAutoShot()" id="btnStartAuto">⚡ เปิด Auto Shot</button>
+            <button class="btn btn-success" onclick="runAutoShotNow()" id="btnRunNow">▶ Run ทันที (วันนี้)</button>
+            <button class="btn btn-secondary" onclick="showPage('shot')">← กลับ</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVE AUTO SHOTS TABLE -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">📋 Auto Shot ที่กำลังทำงาน</div>
+          <button class="btn btn-secondary btn-sm" onclick="renderAutoShotList()">🔄 รีเฟรช</button>
+        </div>
+        <div class="section-body" style="padding:0;">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>โมล</th><th>ยอดต่อวัน</th><th>ยอดต่อปี</th><th>วันทำงาน/ปี</th><th>เริ่ม</th><th>ครั้งล่าสุด</th><th>สถานะ</th><th>Actions</th></tr></thead>
+              <tbody id="autoShotTable"><tr><td colspan="8" style="text-align:center;padding:20px;color:var(--text3)">ยังไม่มี Auto Shot</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TPM PLAN PAGE -->
+    <div class="page" id="page-tpmplan">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="page-title">📅 แผน TPM ประจำปี</div>
+          <div class="page-subtitle">กำหนดแผน TPM รายปี ตั้งได้หลายครั้ง/ต่อโมล</div>
+        </div>
+        <button class="btn btn-primary" onclick="openAddTPM()">➕ เพิ่มแผน TPM</button>
+      </div>
+      <div class="search-bar">
+        <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-input" id="tpmSearch" placeholder="ค้นหาแผน TPM..." oninput="filterTPM()"></div>
+        <select class="filter-select" id="tpmMoldFilter" onchange="filterTPM()">
+          <option value="">ทุกโมล</option>
+        </select>
+        <select class="filter-select" id="tpmYearFilter" onchange="filterTPM()">
+          <option value="">ทุกปี</option>
+        </select>
+        <select class="filter-select" id="tpmStatusFilter" onchange="filterTPM()">
+          <option value="">ทุกสถานะ</option>
+          <option value="Planned">Planned</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+      <div class="section">
+        <div class="section-body" style="padding:0;">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>โมล</th><th>ปี</th><th>แผนที่</th><th>ชื่อแผน</th><th>วันที่กำหนด</th><th>ความถี่</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="tpmTable"><tr><td colspan="8"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTUAL PAGE -->
+    <div class="page" id="page-actual">
+      <div class="page-header">
+        <div class="page-title">✅ บันทึก Actual TPM</div>
+        <div class="page-subtitle">บันทึกผลการดำเนินการ TPM พร้อมรูปภาพ</div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="section-title">บันทึกผลงาน Actual</div></div>
+        <div class="section-body">
+          <div class="form-grid form-grid-2">
+            <div class="form-group">
+              <label class="form-label">เลือกโมล *</label>
+              <select class="form-control" id="actMoldId" onchange="loadTPMForMold()"><option value="">-- เลือกโมล --</option></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">อ้างอิงแผน TPM (ถ้ามี)</label>
+              <select class="form-control" id="actTPMId"><option value="">-- เลือกแผน TPM --</option></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">วันที่ดำเนินการ *</label>
+              <input type="date" class="form-control" id="actDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ผู้บันทึก *</label>
+              <input type="text" class="form-control" id="actBy" placeholder="ชื่อผู้ดำเนินการ">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:12px;">
+            <label class="form-label">📋 Mold Inspection Checklist</label>
+            <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+              <button class="btn btn-secondary btn-sm" onclick="loadDefaultChecklist()">📋 โหลด Checklist มาตรฐาน</button>
+              <button class="btn btn-secondary btn-sm" onclick="setAllOK()">✅ OK ทั้งหมด</button>
+              <button class="btn btn-secondary btn-sm" onclick="clearChecklist()">🗑️ ล้าง</button>
+            </div>
+            <!-- CHECKLIST TABLE -->
+            <div style="overflow-x:auto;border:1px solid var(--border);border-radius:10px;">
+              <table id="checklistTable" style="width:100%;border-collapse:collapse;font-size:12px;">
+                <thead>
+                  <tr style="background:var(--surface2);">
+                    <th style="padding:8px 10px;text-align:center;width:40px;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;letter-spacing:.5px;">ลำดับ</th>
+                    <th style="padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;letter-spacing:.5px;">หัวข้อการตรวจสอบ</th>
+                    <th style="padding:8px 10px;text-align:left;width:35%;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;letter-spacing:.5px;">มาตรฐานการตรวจสอบ</th>
+                    <th style="padding:8px 10px;text-align:center;width:100px;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;letter-spacing:.5px;">การตัดสิน</th>
+                  </tr>
+                </thead>
+                <tbody id="checklistBody">
+                  <tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text3)">กด "โหลด Checklist มาตรฐาน" หรือเพิ่มรายการด้านล่าง</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- ADD CUSTOM ITEM -->
+            <div class="task-add" style="margin-top:10px;">
+              <input type="text" class="form-control" id="newTaskInput" placeholder="เพิ่มรายการตรวจสอบเพิ่มเติม..." onkeydown="if(event.key==='Enter')addActTask()">
+              <input type="text" class="form-control" id="newStdInput" placeholder="มาตรฐาน..." style="max-width:250px;">
+              <button class="btn btn-secondary btn-sm" onclick="addActTask()">+ เพิ่ม</button>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:12px;">
+            <label class="form-label">หมายเหตุ / ผลการดำเนินการ</label>
+            <textarea class="form-control" id="actRemarks" placeholder="ระบุผลการดำเนินการ ปัญหาที่พบ หรือข้อสังเกต..."></textarea>
+          </div>
+          <div class="form-group" style="margin-top:12px;">
+            <label class="form-label">📷 แนบรูปภาพ (บันทึกใน Google Drive)</label>
+            <div class="img-upload-zone" onclick="document.getElementById('imgInput').click()" id="uploadZone"
+                ondragover="event.preventDefault();this.classList.add('drag')"
+                ondragleave="this.classList.remove('drag')"
+                ondrop="handleDrop(event)">
+              <div class="upload-icon">📷</div>
+              <div>คลิกหรือลากรูปภาพมาวางที่นี่</div>
+              <div style="font-size:11px;margin-top:4px;color:var(--text3)">รองรับ JPG, PNG, GIF ขนาดสูงสุด 10MB</div>
+            </div>
+            <input type="file" id="imgInput" multiple accept="image/*" style="display:none" onchange="handleImgSelect(event)">
+            <div class="img-preview-grid" id="imgPreviewGrid"></div>
+          </div>
+          <div style="margin-top:20px;display:flex;gap:10px;">
+            <button class="btn btn-primary" onclick="saveActual()">💾 บันทึก Actual</button>
+            <button class="btn btn-secondary" onclick="clearActual()">🗑️ ล้างข้อมูล</button>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="section-title">📋 Actual ล่าสุด</div></div>
+        <div class="section-body" style="padding:0;">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>วันที่</th><th>โมล</th><th>แผน TPM</th><th>รายการ</th><th>ผู้บันทึก</th><th>รูป</th></tr></thead>
+              <tbody id="actualTable"><tr><td colspan="6"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY PAGE -->
+    <div class="page" id="page-history">
+      <div class="page-header">
+        <div class="page-title">🕐 ประวัติย้อนหลัง</div>
+        <div class="page-subtitle">ดูประวัติ TPM, Shot Count, และ Actual ย้อนหลัง</div>
+      </div>
+      <div class="search-bar">
+        <div class="form-group" style="flex:1;">
+          <select class="form-control" id="histMoldId" onchange="loadHistory()"><option value="">-- เลือกโมล --</option></select>
+        </div>
+        <select class="filter-select" id="histType" onchange="loadHistory()">
+          <option value="all">ทั้งหมด</option>
+          <option value="tpm">TPM</option>
+          <option value="shot">Shot</option>
+          <option value="actual">Actual</option>
+        </select>
+        <select class="filter-select" id="histYear" onchange="loadHistory()">
+          <option value="">ทุกปี</option>
+        </select>
+      </div>
+      <div id="historyContent"><div class="empty"><div class="empty-icon">🕐</div><div class="empty-text">เลือกโมลเพื่อดูประวัติ</div></div></div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- MODAL: ADD/EDIT MOLD -->
+<div class="modal-overlay" id="moldModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="moldModalTitle">➕ เพิ่มโมลใหม่</div>
+      <button class="modal-close" onclick="closeModal('moldModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="moldId">
+      <div class="form-grid form-grid-2">
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">ชื่อโมล *</label>
+          <input type="text" class="form-control" id="moldName" placeholder="เช่น Mold Cover A-01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">เลข Asset *</label>
+          <input type="text" class="form-control" id="assetNo" placeholder="เช่น AST-2024-001">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vendor *</label>
+          <input type="text" class="form-control" id="vendor" placeholder="ชื่อผู้ผลิต">
+        </div>
+        <div class="form-group">
+          <label class="form-label">แผนก/Department</label>
+          <input type="text" class="form-control" id="department" placeholder="เช่น Production Line 1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Shot Limit (shots) *</label>
+          <input type="number" class="form-control" id="shotLimit" placeholder="500000" value="500000">
+        </div>
+        <div class="form-group" id="moldStatusGroup" style="display:none">
+          <label class="form-label">Status</label>
+          <select class="form-control" id="moldStatus"><option>Active</option><option>Inactive</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('moldModal')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveMold()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD TPM PLAN -->
+<div class="modal-overlay" id="tpmModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📅 เพิ่มแผน TPM</div>
+      <button class="modal-close" onclick="closeModal('tpmModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid form-grid-2">
+        <div class="form-group">
+          <label class="form-label">เลือกโมล *</label>
+          <select class="form-control" id="tpmMoldId"><option value="">-- เลือกโมล --</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ปี (Year) *</label>
+          <input type="number" class="form-control" id="tpmYear" placeholder="2025">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ลำดับแผน *</label>
+          <input type="number" class="form-control" id="tpmPlanNo" placeholder="1, 2, 3...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ชื่อแผน *</label>
+          <input type="text" class="form-control" id="tpmPlanName" placeholder="เช่น PM ครั้งที่ 1, Annual Overhaul">
+        </div>
+        <div class="form-group">
+          <label class="form-label">วันที่กำหนด *</label>
+          <input type="date" class="form-control" id="tpmDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ความถี่</label>
+          <select class="form-control" id="tpmFreq">
+            <option>ครั้งเดียว</option>
+            <option>รายเดือน</option>
+            <option>รายไตรมาส</option>
+            <option>ราย 6 เดือน</option>
+            <option>รายปี</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:12px;">
+        <label class="form-label">รายการงาน TPM *</label>
+        <div class="task-list" id="tpmTaskList"></div>
+        <div class="task-add">
+          <input type="text" class="form-control" id="tpmTaskInput" placeholder="เพิ่มรายการ TPM..." onkeydown="if(event.key==='Enter')addTPMTask()">
+          <button class="btn btn-secondary btn-sm" onclick="addTPMTask()">+ เพิ่ม</button>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text3)">
+          💡 รายการงาน TPM ที่ใช้บ่อย: ตรวจสอบสภาพโมล, ทำความสะอาด, วัดขนาดชิ้นงาน, เปลี่ยนน้ำมันหล่อเย็น, ตรวจ Ejector Pin, ตรวจ Cooling System
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('tpmModal')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveTPMPlan()">💾 บันทึกแผน</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: MOLD DETAIL -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <div class="modal-title" id="detailTitle">รายละเอียดโมล</div>
+      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close">✕</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+// ==========================================
+// CONFIG & STATE
+// ==========================================
+let GS_URL = localStorage.getItem('gs_url') || 'https://script.google.com/macros/s/AKfycbz7Fl7BgVWxeNU96ehn10u9ggIkUGupWqHGDpDjyZdynhHupr6GsLqiKNbF53e4Ls2m/exec';
+let connected = false;
+let moldsData = [];
+let tpmPlans = [];
+let uploadedImages = []; // { fileName, base64, mimeType, previewUrl, driveUrl }
+
+// Safe helper: แปลง Tasks field จาก Google Sheets ให้เป็น array เสมอ
+function safeSplit(val, sep) {
+  if (!val && val !== 0) return [];
+  const s = String(val).trim();
+  if (!s || s === '0') return [];
+  return s.split(sep).filter(x => x.trim());
+}
+
+// ==========================================
+// INIT
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('gsUrl').value = GS_URL;
+  setDefaultDates();
+  if (GS_URL) connectGS();
+  // Year filters
+  const yr = new Date().getFullYear();
+  ['tpmYearFilter','histYear'].forEach(id => {
+    const sel = document.getElementById(id);
+    for (let y = yr + 1; y >= yr - 3; y--) {
+      const o = document.createElement('option');
+      o.value = y; o.text = y;
+      sel.appendChild(o);
+    }
+  });
+  document.getElementById('tpmYear').value = yr;
+});
+
+function setDefaultDates() {
+  const today = new Date().toISOString().split('T')[0];
+  ['shotDate','actDate','tpmDate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = today;
+  });
+}
+
+// ==========================================
+// NAVIGATION
+// ==========================================
+function showPage(name) {
+  try {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const pageEl = document.getElementById('page-' + name);
+    if (!pageEl) { console.warn('Page not found: page-' + name); return; }
+    pageEl.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + name + "'")) n.classList.add('active');
+    });
+    if      (name === 'dashboard') loadDashboard();
+    else if (name === 'molds')     loadMolds();
+    else if (name === 'tpmplan')   loadTPMPage();
+    else if (name === 'actual')    loadActualPage();
+    else if (name === 'shot')      loadShotPage();
+    else if (name === 'autoshot')  loadAutoShotPage();
+    else if (name === 'history')   loadHistoryPage();
+  } catch(e) {
+    console.error('showPage error:', e);
+  }
+}
+
+// ==========================================
+// CONNECTION
+// ==========================================
+async function connectGS() {
+  GS_URL = document.getElementById('gsUrl').value.trim();
+  if (!GS_URL) { toast('กรุณาใส่ Google Apps Script URL', 'error'); return; }
+  localStorage.setItem('gs_url', GS_URL);
+  document.getElementById('connDot').className = 'dot';
+  document.getElementById('connText').textContent = 'กำลังเชื่อมต่อ...';
+  try {
+    // ทดสอบ ping ก่อน
+    const res = await callGS({ action: 'ping' });
+    if (res && res.success) {
+      connected = true;
+      document.getElementById('connDot').className = 'dot connected';
+      document.getElementById('connText').textContent = 'เชื่อมต่อแล้ว';
+      toast('✅ เชื่อมต่อสำเร็จ!', 'success');
+      // โหลด molds
+      const moldsRes = await callGS({ action: 'getMolds' });
+      moldsData = moldsRes.data || [];
+      loadDashboard();
+    } else {
+      throw new Error(res ? (res.error || 'Unknown error') : 'No response');
+    }
+  } catch (e) {
+    document.getElementById('connDot').className = 'dot error';
+    document.getElementById('connText').textContent = 'เชื่อมต่อไม่ได้';
+    toast('❌ ' + e.message, 'error');
+    console.error('Connection error:', e);
+  }
+}
+
+async function callGS(data) {
+  if (!GS_URL) throw new Error('ยังไม่ได้ตั้งค่า Google Apps Script URL');
+  // uploadImage ใช้ POST เพราะ base64 ใหญ่เกิน URL limit
+  if (data.action === 'uploadImage') {
+    return callGS_POST(data);
+  }
+  // GET + payload สำหรับ action ทั่วไป
+  const payload = encodeURIComponent(JSON.stringify(data));
+  const url = GS_URL + '?payload=' + payload;
+  try {
+    const res = await fetch(url, { method: 'GET', redirect: 'follow' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    try { return JSON.parse(text); }
+    catch(e) { throw new Error('Parse error: ' + text.substring(0,300)); }
+  } catch(fetchErr) {
+    // Fallback: ลอง no-cors แล้ว redirect ผ่าน iframe trick
+    throw new Error('Fetch failed: ' + fetchErr.message + ' — ตรวจสอบว่า Deploy เป็น "Anyone" แล้วหรือยัง');
+  }
+}
+
+async function callGS_POST(data) {
+  // POST สำหรับ uploadImage (ข้อมูลใหญ่)
+  const res = await fetch(GS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(data),
+    redirect: 'follow'
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch(e) { throw new Error('Parse error: ' + text.substring(0,300)); }
+}
+
+function requireConnection() {
+  if (!connected) { toast('กรุณาเชื่อมต่อ Google Apps Script ก่อน', 'warning'); return false; }
+  return true;
+}
+
+// ==========================================
+// DASHBOARD
+// ==========================================
+async function loadDashboard() {
+  if (!requireConnection()) return;
+  try {
+    const res = await callGS({ action: 'getMolds' });
+    moldsData = res.data || [];
+    const plans = await callGS({ action: 'getTPMPlans' });
+    tpmPlans = plans.data || [];
+    const total = moldsData.length;
+    const active = moldsData.filter(m => m.Status === 'Active').length;
+    const critical = moldsData.filter(m => getShotPct(m) >= 90).length;
+    const warning = moldsData.filter(m => getShotPct(m) >= 70 && getShotPct(m) < 90).length;
+    const pendingTPM = tpmPlans.filter(p => p.Status === 'Planned').length;
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statCritical').textContent = critical;
+    document.getElementById('statWarning').textContent = warning;
+    document.getElementById('statTPM').textContent = pendingTPM;
+    // Auto Shot stats
+    const activeAutoShots = autoShotConfigs.filter(c => c.active).length;
+    document.getElementById('statAutoShot').textContent = activeAutoShots;
+    if (critical > 0) { document.getElementById('critBadge').style.display = ''; document.getElementById('critBadge').textContent = critical; }
+    // แสดงโมลที่ต้องสังเกต: critical/warning/autoshot/pending tpm
+    const alertMolds = moldsData.filter(m =>
+      getShotPct(m) >= 70 ||
+      tpmPlans.some(p => p.MoldID === m.ID && p.Status === 'Planned') ||
+      autoShotConfigs.some(c => c.moldId === m.ID && c.active)
+    );
+    const el = document.getElementById('dashMoldCards');
+    if (!alertMolds.length) {
+      // ถ้าไม่มี alert ให้แสดงทุกโมล
+      if (moldsData.length === 0) {
+        el.innerHTML = '<div class="empty"><div class="empty-icon">⚙️</div><div class="empty-text">ยังไม่มีโมล</div><div class="empty-sub">กดเมนู "จัดการโมล" เพื่อเพิ่มโมล</div></div>';
+      } else {
+        el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--accent3)">✅ ทุกโมลอยู่ในสถานะปกติ</div>' +
+          moldsData.slice(0,6).map(m => moldCard(m, tpmPlans)).join('');
+      }
+      return;
+    }
+    el.innerHTML = alertMolds.map(m => moldCard(m, tpmPlans)).join('');
+  } catch (e) { toast('โหลด Dashboard ไม่ได้: ' + e.message, 'error'); }
+}
+
+function getShotPct(mold) {
+  const cur = parseInt(mold.CurrentShot) || 0;
+  const lim = parseInt(mold.ShotLimit) || 1;
+  return Math.round((cur / lim) * 100);
+}
+
+function getShotColor(pct) {
+  if (pct >= 90) return 'var(--danger)';
+  if (pct >= 70) return 'var(--warning)';
+  return 'var(--accent3)';
+}
+
+function moldCard(m, plans) {
+  const pct = getShotPct(m);
+  const color = getShotColor(pct);
+  const pending = plans.filter(p => p.MoldID === m.ID && p.Status === 'Planned').length;
+  const alertClass = pct >= 90 ? 'badge-critical' : pct >= 70 ? 'badge-warning' : 'badge-normal';
+  const alertLabel = pct >= 90 ? '🚨 Critical' : pct >= 70 ? '⚠️ Warning' : '✅ Normal';
+  // ตรวจสอบ Auto Shot
+  const autoConf = autoShotConfigs.find(c => c.moldId === m.ID && c.active);
+  const autoTag = autoConf
+    ? `<div style="margin-top:6px;display:flex;align-items:center;gap:6px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:6px;padding:4px 8px;">
+        <div style="width:7px;height:7px;border-radius:50%;background:var(--accent3);box-shadow:0 0 6px var(--accent3);animation:pulse 2s infinite;flex-shrink:0;"></div>
+        <span style="font-size:11px;color:var(--accent3);font-weight:600;">⚡ Auto Shot: ${autoConf.dailyQty.toLocaleString()} pcs/วัน</span>
+        <span style="font-size:10px;color:var(--text3);margin-left:auto;">${autoConf.runTime}</span>
+      </div>` : '';
+  return `<div class="mold-card" onclick="showMoldDetail('${m.ID}')">
+    <div class="mold-card-header">
+      <div><div class="mold-card-name">${m.MoldName}</div><div class="mold-card-asset">${m.AssetNo}</div></div>
+      <span class="badge ${alertClass}">${alertLabel}</span>
+    </div>
+    <div style="font-size:12px;color:var(--text2)">🏭 ${m.Vendor || '-'} | 🏢 ${m.Department || '-'}</div>
+    ${autoTag}
+    ${pending > 0 ? `<div style="margin-top:6px;font-size:12px;color:var(--accent2)">📅 TPM รอดำเนินการ: ${pending} รายการ</div>` : ''}
+    <div class="mold-card-shot">
+      <div class="mold-card-shot-label"><span>Shot: ${parseInt(m.CurrentShot||0).toLocaleString()} / ${parseInt(m.ShotLimit||0).toLocaleString()}</span><span style="color:${color}">${pct}%</span></div>
+      <div class="mold-card-bar"><div class="mold-card-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div>
+    </div>
+    <div class="mold-card-meta"><span>📅 ${m.CreatedDate ? m.CreatedDate.split('T')[0] : '-'}</span><span style="color:${m.Status==='Active'?'var(--accent3)':'var(--text3)'}">${m.Status}</span></div>
+  </div>`;
+}
+
+// ==========================================
+// MOLDS PAGE
+// ==========================================
+async function loadMolds() {
+  if (!requireConnection()) return;
+  try {
+    const res = await callGS({ action: 'getMolds' });
+    moldsData = res.data || [];
+    renderMoldsTable(moldsData);
+    populateMoldSelects();
+  } catch (e) {
+    toast('โหลดข้อมูลไม่ได้: ' + e.message, 'error');
+    console.error('loadTPMPage error:', e);
+  }
+}
+
+function renderMoldsTable(molds) {
+  const tbody = document.getElementById('moldsTable');
+  if (!molds.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">⚙️</div><div class="empty-text">ยังไม่มีโมล</div><div class="empty-sub">กดปุ่ม "เพิ่มโมล" เพื่อเริ่มต้น</div></div></td></tr>'; return; }
+  tbody.innerHTML = molds.map(m => {
+    const pct = getShotPct(m);
+    const color = getShotColor(pct);
+    const levelClass = pct >= 90 ? 'badge-critical' : pct >= 70 ? 'badge-warning' : 'badge-normal';
+    const levelLabel = pct >= 90 ? '🚨 Critical' : pct >= 70 ? '⚠️ Warning' : '✅ Normal';
+    return `<tr>
+      <td><div class="mold-name">${m.MoldName}</div><div style="font-size:11px;color:var(--text3)">${m.Department || ''}</div></td>
+      <td><span class="asset-no">${m.AssetNo}</span></td>
+      <td>${m.Vendor || '-'}</td>
+      <td>${m.Department || '-'}</td>
+      <td>
+        <div style="min-width:130px;">
+          <div style="font-family:var(--mono);font-size:12px;margin-bottom:4px;">${parseInt(m.CurrentShot||0).toLocaleString()} / ${parseInt(m.ShotLimit||0).toLocaleString()}</div>
+          <div class="shot-bar"><div class="shot-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div>
+          <div class="shot-pct" style="color:${color}">${pct}%</div>
+        </div>
+      </td>
+      <td><span class="badge ${levelClass}">${levelLabel}</span></td>
+      <td><span class="badge ${m.Status==='Active'?'badge-active':'badge-inactive'}">${m.Status}</span></td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="showMoldDetail('${m.ID}')">👁️</button>
+          <button class="btn btn-secondary btn-sm" onclick="editMold('${m.ID}')">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteMold('${m.ID}')">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterMolds() {
+  const q = document.getElementById('moldSearch').value.toLowerCase();
+  const f = document.getElementById('moldFilter').value;
+  let filtered = moldsData.filter(m => {
+    const match = (m.MoldName+m.AssetNo+m.Vendor+m.Department).toLowerCase().includes(q);
+    if (!match) return false;
+    if (f === 'Active') return m.Status === 'Active';
+    if (f === 'Inactive') return m.Status === 'Inactive';
+    if (f === 'critical') return getShotPct(m) >= 90;
+    if (f === 'warning') return getShotPct(m) >= 70 && getShotPct(m) < 90;
+    return true;
+  });
+  renderMoldsTable(filtered);
+}
+
+function openAddMold() {
+  document.getElementById('moldModalTitle').textContent = '➕ เพิ่มโมลใหม่';
+  document.getElementById('moldId').value = '';
+  ['moldName','assetNo','vendor','department'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('shotLimit').value = '500000';
+  document.getElementById('moldStatusGroup').style.display = 'none';
+  openModal('moldModal');
+}
+
+function editMold(id) {
+  const m = moldsData.find(x => x.ID === id);
+  if (!m) return;
+  document.getElementById('moldModalTitle').textContent = '✏️ แก้ไขโมล';
+  document.getElementById('moldId').value = m.ID;
+  document.getElementById('moldName').value = m.MoldName;
+  document.getElementById('assetNo').value = m.AssetNo;
+  document.getElementById('vendor').value = m.Vendor;
+  document.getElementById('department').value = m.Department;
+  document.getElementById('shotLimit').value = m.ShotLimit;
+  document.getElementById('moldStatus').value = m.Status;
+  document.getElementById('moldStatusGroup').style.display = '';
+  openModal('moldModal');
+}
+
+async function saveMold() {
+  if (!requireConnection()) return;
+  const id = document.getElementById('moldId').value;
+  const data = {
+    id, moldName: document.getElementById('moldName').value,
+    assetNo: document.getElementById('assetNo').value,
+    vendor: document.getElementById('vendor').value,
+    department: document.getElementById('department').value,
+    shotLimit: document.getElementById('shotLimit').value,
+    status: document.getElementById('moldStatus').value
+  };
+  if (!data.moldName || !data.assetNo) { toast('กรุณากรอกข้อมูลที่จำเป็น', 'warning'); return; }
+  try {
+    const action = id ? 'updateMold' : 'saveMold';
+    const res = await callGS({ action, data });
+    if (res.success) {
+      toast(id ? '✅ แก้ไขโมลสำเร็จ' : '✅ เพิ่มโมลสำเร็จ', 'success');
+      closeModal('moldModal');
+      loadMolds();
+    } else throw new Error(res.error);
+  } catch (e) { toast('เกิดข้อผิดพลาด: ' + e.message, 'error'); }
+}
+
+async function deleteMold(id) {
+  if (!confirm('ยืนยันการลบโมลนี้?')) return;
+  if (!requireConnection()) return;
+  try {
+    const res = await callGS({ action: 'deleteMold', id });
+    if (res.success) { toast('✅ ลบโมลสำเร็จ', 'success'); loadMolds(); }
+    else throw new Error(res.error);
+  } catch (e) { toast('เกิดข้อผิดพลาด: ' + e.message, 'error'); }
+}
+
+async function showMoldDetail(id) {
+  const m = moldsData.find(x => x.ID === id);
+  if (!m) return;
+  const pct = getShotPct(m);
+  const color = getShotColor(pct);
+  const plans = tpmPlans.filter(p => p.MoldID === id);
+  const autoConf = autoShotConfigs.find(c => c.moldId === id);
+  const autoSection = autoConf ? `
+    <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:10px 14px;margin:10px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div style="width:9px;height:9px;border-radius:50%;background:${autoConf.active?'var(--accent3)':'var(--text3)'};flex-shrink:0;${autoConf.active?'box-shadow:0 0 6px var(--accent3);':''}"></div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;color:${autoConf.active?'var(--accent3)':'var(--text2)'}">⚡ Auto Shot: ${autoConf.active?'กำลังทำงาน':'หยุดชั่วคราว'}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;">${autoConf.dailyQty.toLocaleString()} pcs/วัน &nbsp;|&nbsp; ${autoConf.annualQty.toLocaleString()} pcs/ปี ÷ ${autoConf.workDays} วันทำงาน &nbsp;|&nbsp; รันเวลา ${autoConf.runTime} น. &nbsp;|&nbsp; ล่าสุด: ${autoConf.lastRun||'ยังไม่ได้รัน'}</div>
+      </div>
+    </div>` : '';
+  document.getElementById('detailTitle').textContent = '⚙️ ' + m.MoldName;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-label">ชื่อโมล</div><div class="detail-value">${m.MoldName}</div></div>
+      <div class="detail-item"><div class="detail-label">Asset No.</div><div class="detail-value" style="font-family:var(--mono);color:var(--accent)">${m.AssetNo}</div></div>
+      <div class="detail-item"><div class="detail-label">Vendor</div><div class="detail-value">${m.Vendor||'-'}</div></div>
+      <div class="detail-item"><div class="detail-label">แผนก</div><div class="detail-value">${m.Department||'-'}</div></div>
+      <div class="detail-item"><div class="detail-label">Shot ปัจจุบัน</div><div class="detail-value" style="font-family:var(--mono);color:${color}">${parseInt(m.CurrentShot||0).toLocaleString()}</div></div>
+      <div class="detail-item"><div class="detail-label">Shot Limit</div><div class="detail-value" style="font-family:var(--mono)">${parseInt(m.ShotLimit||0).toLocaleString()}</div></div>
+    </div>
+    ${autoSection}
+    <div style="margin:16px 0;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:6px;"><span>Shot Progress</span><span style="color:${color};font-family:var(--mono);font-weight:600">${pct}%</span></div>
+      <div class="shot-bar" style="height:14px;border-radius:7px;"><div class="shot-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div>
+    </div>
+    <div style="margin-top:16px;font-size:13px;font-weight:600;margin-bottom:10px;">📅 แผน TPM (${plans.length} รายการ)</div>
+    ${plans.length ? plans.map(p => `
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:600;font-size:13px;">${p.PlanName}</div><div style="font-size:11px;color:var(--text3)">ปี ${p.Year} | ${p.ScheduledDate ? p.ScheduledDate.split('T')[0] : '-'} | ${p.Frequency}</div></div>
+        <span class="badge ${p.Status==='Completed'?'badge-completed':'badge-planned'}">${p.Status}</span>
+      </div>`).join('') : '<div style="color:var(--text3);font-size:13px;">ยังไม่มีแผน TPM</div>'}
+  `;
+  openModal('detailModal');
+}
+
+// ==========================================
+// SHOT COUNT
+// ==========================================
+async function loadShotPage() {
+  if (!requireConnection()) return;
+  try {
+    const res = await callGS({ action: 'getMolds' });
+    moldsData = res.data || [];
+  } catch(e) {}
+  populateMoldSelects();
+}
+
+function populateMoldSelects() {
+  const selects = ['shotMoldId','actMoldId','tpmMoldId','histMoldId','tpmMoldFilter','autoMoldId'];
+  selects.forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const val = sel.value;
+    sel.innerHTML = '<option value="">-- เลือกโมล --</option>';
+    moldsData.forEach(m => {
+      const o = document.createElement('option');
+      o.value = m.ID; o.textContent = m.MoldName + ' (' + m.AssetNo + ')';
+      sel.appendChild(o);
+    });
+    if (val) sel.value = val;
+  });
+}
+
+function showShotInfo() {
+  const id = document.getElementById('shotMoldId').value;
+  if (!id) { document.getElementById('shotInfo').style.display = 'none'; document.getElementById('shotHistTable').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text3)">เลือกโมลเพื่อดูประวัติ</td></tr>'; return; }
+  const m = moldsData.find(x => x.ID === id);
+  if (!m) return;
+  document.getElementById('shotInfo').style.display = '';
+  document.getElementById('infoCurrentShot').textContent = parseInt(m.CurrentShot||0).toLocaleString();
+  document.getElementById('infoShotLimit').textContent = parseInt(m.ShotLimit||0).toLocaleString();
+  calcNewShot();
+  loadShotHistory(id);
+}
+
+function calcNewShot() {
+  const id = document.getElementById('shotMoldId').value;
+  const m = moldsData.find(x => x.ID === id);
+  if (!m) return;
+  const add = parseInt(document.getElementById('shotQty').value) || 0;
+  const cur = parseInt(m.CurrentShot||0);
+  const lim = parseInt(m.ShotLimit||1);
+  const newShot = cur + add;
+  const pct = Math.round((newShot / lim) * 100);
+  const color = getShotColor(pct);
+  document.getElementById('infoAddShot').textContent = add.toLocaleString();
+  document.getElementById('infoNewShot').textContent = newShot.toLocaleString();
+  document.getElementById('infoShotBar').style.width = Math.min(pct,100) + '%';
+  document.getElementById('infoShotBar').style.background = color;
+  document.getElementById('infoShotPct').textContent = pct + '%';
+  document.getElementById('infoShotPct').style.color = color;
+}
+
+async function loadShotHistory(moldId) {
+  try {
+    const res = await callGS({ action: 'getShotHistory', moldId });
+    const tbody = document.getElementById('shotHistTable');
+    const data = res.data || [];
+    if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text3)">ยังไม่มีประวัติ</td></tr>'; return; }
+    tbody.innerHTML = data.slice(0,20).map(r => `<tr>
+      <td style="font-family:var(--mono);font-size:12px;">${r.Date ? r.Date.split('T')[0] : '-'}</td>
+      <td style="color:var(--accent3)">+${parseInt(r.AddedShot||0).toLocaleString()}</td>
+      <td style="font-family:var(--mono);font-weight:600;">${parseInt(r.TotalShot||0).toLocaleString()}</td>
+      <td>${r.Operator||'-'}</td>
+      <td style="color:var(--text3)">${r.Remarks||'-'}</td>
+    </tr>`).join('');
+  } catch (e) { console.error(e); }
+}
+
+async function saveShot() {
+  if (!requireConnection()) return;
+  const moldId = document.getElementById('shotMoldId').value;
+  const qty = document.getElementById('shotQty').value;
+  if (!moldId || !qty) { toast('กรุณาเลือกโมลและกรอกยอดผลิต', 'warning'); return; }
+  try {
+    const res = await callGS({
+      action: 'updateShot',
+      data: { moldId, productionQty: qty, operator: document.getElementById('shotOperator').value, remarks: document.getElementById('shotRemarks').value }
+    });
+    if (res.success) {
+      const alertMsg = res.alertLevel === 'Critical' ? ' 🚨 CRITICAL! ต้องซ่อมโมล!' : res.alertLevel === 'Warning' ? ' ⚠️ Warning ใกล้ถึง Shot Limit' : '';
+      toast(`✅ บันทึก Shot สำเร็จ | Shot รวม: ${res.newShot.toLocaleString()} (${Math.round(res.newShot/res.shotLimit*100)}%)${alertMsg}`, 'success');
+      document.getElementById('shotQty').value = '';
+      document.getElementById('shotRemarks').value = '';
+      await loadMolds();
+      showShotInfo();
+    } else throw new Error(res.error);
+  } catch (e) { toast('เกิดข้อผิดพลาด: ' + e.message, 'error'); }
+}
+
+// ==========================================
+// TPM PLAN
+// ==========================================
+async function loadTPMPage() {
+  if (!requireConnection()) return;
+  try {
+    const [moldsRes, tpmRes] = await Promise.all([
+      callGS({ action: 'getMolds' }),
+      callGS({ action: 'getTPMPlans' })
+    ]);
+    moldsData = moldsRes.data || [];
+    tpmPlans = tpmRes.data || [];
+    populateMoldSelects();
+    renderTPMTable(tpmPlans);
+    // populate year filter
+    const years = [...new Set(tpmPlans.map(p => p.Year).filter(Boolean))].sort((a,b)=>b-a);
+    const sel = document.getElementById('tpmYearFilter');
+    if (sel) {
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">ทุกปี</option>';
+      years.forEach(y => { const o = document.createElement('option'); o.value=y; o.text=y; sel.appendChild(o); });
+      if (cur) sel.value = cur;
+    }
+  } catch (e) { toast('โหลดข้อมูลไม่ได้: ' + e.message, 'error'); }
+}
+
+function renderTPMTable(plans) {
+  const tbody = document.getElementById('tpmTable');
+  if (!plans.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">📅</div><div class="empty-text">ยังไม่มีแผน TPM</div></div></td></tr>'; return; }
+  tbody.innerHTML = plans.map(p => {
+    const mold = moldsData.find(m => m.ID === p.MoldID);
+    const tasks = safeSplit(p.Tasks,'||');
+    return `<tr>
+      <td><div class="mold-name">${mold ? mold.MoldName : p.MoldID}</div><div class="asset-no">${mold ? mold.AssetNo : ''}</div></td>
+      <td style="font-family:var(--mono)">${p.Year}</td>
+      <td style="text-align:center;font-family:var(--mono);font-weight:700;color:var(--accent)">#${p.PlanNo}</td>
+      <td><div style="font-weight:600">${p.PlanName}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${tasks.length} รายการงาน</div></td>
+      <td style="font-family:var(--mono);font-size:12px">${p.ScheduledDate ? p.ScheduledDate.split('T')[0] : '-'}</td>
+      <td>${p.Frequency||'-'}</td>
+      <td><span class="badge ${p.Status==='Completed'?'badge-completed':'badge-planned'}">${p.Status||'Planned'}</span></td>
+      <td><button class="btn btn-secondary btn-sm" onclick="viewTPMTasks('${p.ID}')">📋 Tasks</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterTPM() {
+  const q = document.getElementById('tpmSearch').value.toLowerCase();
+  const moldF = document.getElementById('tpmMoldFilter').value;
+  const yearF = document.getElementById('tpmYearFilter').value;
+  const statusF = document.getElementById('tpmStatusFilter').value;
+  let filtered = tpmPlans.filter(p => {
+    const mold = moldsData.find(m => m.ID === p.MoldID);
+    const name = ((mold ? mold.MoldName : '') + p.PlanName).toLowerCase();
+    if (!name.includes(q)) return false;
+    if (moldF && p.MoldID !== moldF) return false;
+    if (yearF && String(p.Year) !== String(yearF)) return false;
+    if (statusF && p.Status !== statusF) return false;
+    return true;
+  });
+  renderTPMTable(filtered);
+}
+
+function openAddTPM() {
+  document.getElementById('tpmMoldId').innerHTML = '<option value="">-- เลือกโมล --</option>';
+  moldsData.forEach(m => {
+    const o = document.createElement('option');
+    o.value = m.ID; o.textContent = m.MoldName + ' (' + m.AssetNo + ')';
+    document.getElementById('tpmMoldId').appendChild(o);
+  });
+  document.getElementById('tpmTaskList').innerHTML = '';
+  // โหลด Checklist มาตรฐาน 9 ข้อเป็น default tasks ของแผน TPM
+  const tpmDefaultTasks = [
+    'ชิ้นงานสุดท้ายหลังการผลิต – ต้องไม่มีรอยและมีครีบ',
+    'จุดยึดติดต่างๆ ของแม่พิมพ์ – SCREW ยึดแน่น ไม่ขาด ร่องประแจไม่ชำรุด',
+    'การหล่อลื่น GUIDE POST, EJECTOR PIN และจุด SLIDE – ปิด-เปิดคล่องตัว ไม่ติดขัด',
+    'ตรวจเช็ครูน้ำหล่อเย็น – ไม่อุดตัน และไม่มีรอยรั่ว',
+    'เช็ค SPRING FOR RETURN PIN & SPRING FOR SLIDE – ไม่แตกหัก ไม่คดงอ',
+    'เช็ค EJECTOR PIN – ไม่มีรอยไหม้ ไม่คดงอ ไม่หัก วิ่งเข้า-ออกคล่องตัว',
+    'เช็ค GUIDE POST & GUIDE BUSH, ANGULAR PIN & BUSH – ไม่ไหม้ ไม่สึก ไม่หลวม มีจาระบี',
+    'เช็คคราบสนิมหน้าแม่พิมพ์ – ไม่มีสนิม ทั้งด้าน CORE และ CAVITY',
+    'ความสะอาดของแม่พิมพ์ – สภาพทั่วไปสะอาด',
+  ];
+  tpmDefaultTasks.forEach(t => addTPMTask(t));
+  openModal('tpmModal');
+}
+
+function addTPMTask(text) {
+  const val = text || document.getElementById('tpmTaskInput').value.trim();
+  if (!val) return;
+  const div = document.createElement('div');
+  div.className = 'task-item';
+  div.innerHTML = `<span style="color:var(--accent2)">✦</span><span class="task-item-text">${val}</span><button class="task-remove" onclick="this.parentElement.remove()">✕</button>`;
+  document.getElementById('tpmTaskList').appendChild(div);
+  if (!text) document.getElementById('tpmTaskInput').value = '';
+}
+
+async function saveTPMPlan() {
+  if (!requireConnection()) return;
+  const tasks = Array.from(document.querySelectorAll('#tpmTaskList .task-item-text')).map(e => e.textContent);
+  if (!document.getElementById('tpmMoldId').value || !document.getElementById('tpmPlanName').value || !tasks.length) {
+    toast('กรุณากรอกข้อมูลและเพิ่มรายการงาน', 'warning'); return;
+  }
+  try {
+    const res = await callGS({
+      action: 'saveTPMPlan',
+      data: {
+        moldId: document.getElementById('tpmMoldId').value,
+        year: document.getElementById('tpmYear').value,
+        planNo: document.getElementById('tpmPlanNo').value,
+        planName: document.getElementById('tpmPlanName').value,
+        scheduledDate: document.getElementById('tpmDate').value,
+        frequency: document.getElementById('tpmFreq').value,
+        tasks
+      }
+    });
+    if (res.success) { toast('✅ บันทึกแผน TPM สำเร็จ', 'success'); closeModal('tpmModal'); loadTPMPage(); }
+    else throw new Error(res.error);
+  } catch (e) { toast('เกิดข้อผิดพลาด: ' + e.message, 'error'); }
+}
+
+function viewTPMTasks(id) {
+  const p = tpmPlans.find(x => x.ID === id);
+  if (!p) return;
+  const tasks = safeSplit(p.Tasks,'||');
+  const mold = moldsData.find(m => m.ID === p.MoldID);
+  alert(`📋 รายการงาน TPM: ${p.PlanName}\nโมล: ${mold ? mold.MoldName : p.MoldID}\nวันที่: ${p.ScheduledDate ? p.ScheduledDate.split('T')[0] : '-'}\n\n${tasks.map((t,i) => `${i+1}. ${t}`).join('\n')}`);
+}
+
+// ==========================================
+// ACTUAL
+// ==========================================
+async function loadActualPage() {
+  if (!requireConnection()) return;
+  try {
+    const [moldsRes, tpmRes, actRes] = await Promise.all([
+      callGS({ action: 'getMolds' }),
+      callGS({ action: 'getTPMPlans' }),
+      callGS({ action: 'getActuals' })
+    ]);
+    moldsData = moldsRes.data || [];
+    tpmPlans = tpmRes.data || [];
+    populateMoldSelects();
+    renderActualTable(actRes.data || []);
+    initActTasks();
+  } catch (e) { toast('โหลดข้อมูลไม่ได้', 'error'); }
+}
+
+// Default checklist data
+const DEFAULT_CHECKLIST = [
+  { topic: 'ชิ้นงานสุดท้ายหลังการผลิต',                         std: 'ต้องไม่มีรอยและมีครีบ' },
+  { topic: 'จุดยึดติดต่างๆ ของแม่พิมพ์',                       std: 'SCREW ต้องยึดแน่น ไม่ขาด ร่องประแจต้องไม่ชำรุด' },
+  { topic: 'การหล่อลื่น GUIDE POST, EJECTOR PIN และจุด SLIDE', std: 'แม่พิมพ์ปิด-เปิดต้องคล่องตัว ไม่ติดขัดระหว่างเคลื่อนที่เข้าออก' },
+  { topic: 'ตรวจเช็ครูน้ำหล่อเย็น',                            std: 'รูน้ำไม่อุดตัน และไม่มีรอยรั่ว' },
+  { topic: 'เช็ค SPRING FOR RETURN PIN & SPRING FOR SLIDE',     std: 'ไม่แตกหัก ไม่คดงอเสียรูป' },
+  { topic: 'เช็ค EJECTOR PIN',                                  std: 'ต้องไม่มีรอยไหม้ ไม่คดงอ และไม่หัก ต้องวิ่งเข้า-ออกได้คล่องตัว' },
+  { topic: 'เช็ค GUIDE POST & GUIDE BUSH, ANGULAR PIN & BUSH',  std: 'ต้องไม่มีรอยไหม้ ไม่สึกหรอ ไม่หลวม ไม่เบียด และต้องมีจาระบีชโลมไว้' },
+  { topic: 'เช็คคราบสนิมหน้าแม่พิมพ์',                         std: 'ต้องไม่มีคราบสนิมที่หน้าแม่พิมพ์ ทั้งด้าน CORE และ CAVITY' },
+  { topic: 'ความสะอาดของแม่พิมพ์',                              std: 'สภาพทั่วไปต้องสะอาด' },
+  { topic: 'อื่นๆ',                                             std: '-' },
+];
+
+let checklistItems = []; // { topic, std, result: 'OK'|'NG'|'' }
+
+function initActTasks() {
+  checklistItems = [];
+  renderChecklistTable();
+}
+
+function loadDefaultChecklist() {
+  checklistItems = DEFAULT_CHECKLIST.map(d => ({ topic: d.topic, std: d.std, result: '' }));
+  renderChecklistTable();
+  toast('📋 โหลด Checklist มาตรฐาน 10 รายการแล้ว', 'info');
+}
+
+function setAllOK() {
+  checklistItems.forEach(item => item.result = 'OK');
+  renderChecklistTable();
+  toast('✅ ตั้งทุกรายการเป็น OK', 'success');
+}
+
+function clearChecklist() {
+  checklistItems = [];
+  renderChecklistTable();
+}
+
+function setItemResult(idx, val) {
+  if (checklistItems[idx]) checklistItems[idx].result = val;
+  renderChecklistTable();
+}
+
+function removeChecklistItem(idx) {
+  checklistItems.splice(idx, 1);
+  renderChecklistTable();
+}
+
+function renderChecklistTable() {
+  const tbody = document.getElementById('checklistBody');
+  if (!tbody) return;
+  if (!checklistItems.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text3)">กด "โหลด Checklist มาตรฐาน" หรือเพิ่มรายการด้านล่าง</td></tr>';
+    return;
+  }
+  tbody.innerHTML = checklistItems.map((item, i) => {
+    const isOK = item.result === 'OK';
+    const isNG = item.result === 'NG';
+    return `<tr style="border-bottom:1px solid var(--border);${isNG ? 'background:rgba(239,68,68,.05);' : ''}">
+      <td style="padding:8px 10px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3)">${i+1}</td>
+      <td style="padding:8px 10px;font-size:12px;font-weight:500;line-height:1.5;">${item.topic}</td>
+      <td style="padding:8px 10px;font-size:11px;color:var(--text2);line-height:1.5;">${item.std}</td>
+      <td style="padding:8px 10px;text-align:center;">
+        <div style="display:flex;gap:4px;justify-content:center;align-items:center;">
+          <button onclick="setItemResult(${i},'OK')" style="padding:3px 10px;border-radius:5px;border:1px solid ${isOK ? 'var(--accent3)' : 'var(--border)'};background:${isOK ? 'rgba(16,185,129,.2)' : 'var(--surface2)'};color:${isOK ? 'var(--accent3)' : 'var(--text3)'};font-size:11px;font-weight:700;cursor:pointer;transition:.15s;">OK</button>
+          <button onclick="setItemResult(${i},'NG')" style="padding:3px 10px;border-radius:5px;border:1px solid ${isNG ? 'var(--danger)' : 'var(--border)'};background:${isNG ? 'rgba(239,68,68,.2)' : 'var(--surface2)'};color:${isNG ? 'var(--danger)' : 'var(--text3)'};font-size:11px;font-weight:700;cursor:pointer;transition:.15s;">NG</button>
+          <button onclick="removeChecklistItem(${i})" style="padding:3px 6px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text3);font-size:10px;cursor:pointer;">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function loadTPMForMold() {
+  const moldId = document.getElementById('actMoldId').value;
+  const sel = document.getElementById('actTPMId');
+  sel.innerHTML = '<option value="">-- เลือกแผน TPM (ถ้ามี) --</option>';
+  const plans = tpmPlans.filter(p => p.MoldID === moldId && p.Status === 'Planned');
+  plans.forEach(p => {
+    const o = document.createElement('option');
+    o.value = p.ID; o.textContent = `[${p.Year}] ${p.PlanName} (${p.ScheduledDate ? p.ScheduledDate.split('T')[0] : '-'})`;
+    sel.appendChild(o);
+  });
+  sel.onchange = function() {
+    const pid = this.value;
+    if (!pid) return;
+    const plan = tpmPlans.find(p => p.ID === pid);
+    if (!plan) return;
+    const tasks = safeSplit(plan.Tasks,'||');
+    // โหลด checklist มาตรฐานก่อน แล้ว mark tasks จาก TPM plan
+    checklistItems = DEFAULT_CHECKLIST.map(d => ({ topic: d.topic, std: d.std, result: '' }));
+    // เพิ่ม tasks จาก TPM plan ที่ไม่ซ้ำ
+    tasks.forEach(t => {
+      const exists = checklistItems.some(c => c.topic.toLowerCase().includes(t.toLowerCase().substring(0,10)));
+      if (!exists) checklistItems.push({ topic: t, std: '-', result: '' });
+    });
+    renderChecklistTable();
+    toast('📋 โหลดรายการจากแผน TPM + Checklist มาตรฐานแล้ว', 'info');
+  };
+}
+
+function addActTask(text, std) {
+  const val = text || document.getElementById('newTaskInput').value.trim();
+  const stdVal = std || (document.getElementById('newStdInput') ? document.getElementById('newStdInput').value.trim() : '');
+  if (!val) return;
+  checklistItems.push({ topic: val, std: stdVal || '-', result: '' });
+  renderChecklistTable();
+  if (!text) {
+    document.getElementById('newTaskInput').value = '';
+    if (document.getElementById('newStdInput')) document.getElementById('newStdInput').value = '';
+  }
+}
+
+function renderActualTable(actuals) {
+  const tbody = document.getElementById('actualTable');
+  if (!actuals.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">✅</div><div class="empty-text">ยังไม่มีบันทึก Actual</div></div></td></tr>'; return; }
+  tbody.innerHTML = actuals.slice(0,30).map(a => {
+    const mold = moldsData.find(m => m.ID === a.MoldID);
+    const plan = tpmPlans.find(p => p.ID === a.TPMPlanID);
+    const tasks = safeSplit(a.Tasks,'||');
+    const imgs = safeSplit(a.ImageURLs,'||');
+    return `<tr>
+      <td style="font-family:var(--mono);font-size:12px;">${a.ActualDate ? a.ActualDate.split('T')[0] : '-'}</td>
+      <td><div class="mold-name">${mold ? mold.MoldName : a.MoldID}</div></td>
+      <td>${plan ? plan.PlanName : (a.TPMPlanID ? a.TPMPlanID : '-')}</td>
+      <td><div style="font-size:12px;">${tasks.slice(0,2).map(t => `• ${t}`).join('<br>')}${tasks.length > 2 ? `<br><span style="color:var(--text3)">+${tasks.length-2} รายการ</span>` : ''}</div></td>
+      <td>${a.RecordedBy||'-'}</td>
+      <td>${imgs.length ? `<div style="display:flex;gap:4px;">${imgs.slice(0,3).map(url => `<img src="${url}" style="width:40px;height:40px;border-radius:4px;object-fit:cover;cursor:pointer;border:1px solid var(--border)" onclick="openLightbox('${url}')">`).join('')}${imgs.length > 3 ? `<span style="font-size:11px;color:var(--text3);align-self:center;">+${imgs.length-3}</span>` : ''}</div>` : '<span style="color:var(--text3)">-</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// IMAGE HANDLING
+function handleImgSelect(e) {
+  Array.from(e.target.files).forEach(processImage);
+  e.target.value = '';
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')).forEach(processImage);
+}
+function processImage(file) {
+  if (file.size > 10 * 1024 * 1024) { toast('รูปภาพขนาดใหญ่เกิน 10MB: ' + file.name, 'warning'); return; }
+  const reader = new FileReader();
+  const idx = uploadedImages.length;
+  const previewUrl = URL.createObjectURL(file);
+  uploadedImages.push({ fileName: file.name, base64: null, mimeType: file.type, previewUrl, driveUrl: null, status: 'pending' });
+  renderImgPreviews();
+  reader.onload = function(e) {
+    uploadedImages[idx].base64 = e.target.result.split(',')[1];
+    uploadedImages[idx].status = 'ready';
+  };
+  reader.readAsDataURL(file);
+}
+function renderImgPreviews() {
+  const grid = document.getElementById('imgPreviewGrid');
+  grid.innerHTML = uploadedImages.map((img, i) => `
+    <div class="img-preview">
+      ${img.previewUrl ? `<img src="${img.previewUrl}" alt="${img.fileName}">` : '<div class="img-uploading">⏳</div>'}
+      ${img.driveUrl ? '<div style="position:absolute;bottom:4px;left:4px;background:rgba(16,185,129,.8);border-radius:3px;padding:1px 4px;font-size:10px;color:#fff">✓ Drive</div>' : ''}
+      <button class="img-remove" onclick="removeImg(${i})">✕</button>
+    </div>`).join('');
+}
+function removeImg(i) { uploadedImages.splice(i, 1); renderImgPreviews(); }
+
+async function uploadAllImages() {
+  const results = [];
+  for (const img of uploadedImages) {
+    if (img.driveUrl) { results.push(img.driveUrl); continue; }
+    if (!img.base64) { continue; }
+    try {
+      if (!requireConnection()) continue;
+      const res = await callGS({ action: 'uploadImage', data: { base64: img.base64, mimeType: img.mimeType, fileName: img.fileName } });
+      if (res.success) { img.driveUrl = res.directUrl; img.status = 'uploaded'; results.push(res.directUrl); }
+      else toast('Upload ล้มเหลว: ' + img.fileName, 'warning');
+    } catch (e) { toast('Upload error: ' + e.message, 'error'); }
+  }
+  renderImgPreviews();
+  return results;
+}
+
+async function saveActual() {
+  if (!requireConnection()) return;
+  const moldId = document.getElementById('actMoldId').value;
+  const actDate = document.getElementById('actDate').value;
+  const actBy = document.getElementById('actBy').value;
+  // เก็บจาก checklist
+  const tasks = checklistItems.map(item => `${item.topic} [${item.result || '-'}]${item.std !== '-' ? ' | ' + item.std : ''}`);
+  const ngItems = checklistItems.filter(i => i.result === 'NG');
+  if (!moldId || !actDate || !checklistItems.length) { toast('กรุณากรอกข้อมูลและเพิ่มรายการตรวจสอบ', 'warning'); return; }
+  if (ngItems.length > 0) {
+    const confirmed = confirm(`⚠️ พบ NG ${ngItems.length} รายการ:\n${ngItems.map(i=>i.topic).join('\n')}\n\nต้องการบันทึกต่อหรือไม่?`);
+    if (!confirmed) return;
+  }
+  toast('⏳ กำลัง Upload รูปภาพ...', 'info');
+  const imageUrls = await uploadAllImages();
+  try {
+    const res = await callGS({
+      action: 'saveActual',
+      data: {
+        moldId,
+        tpmPlanId: document.getElementById('actTPMId').value,
+        actualDate: actDate,
+        tasks,
+        remarks: document.getElementById('actRemarks').value,
+        imageUrls,
+        recordedBy: actBy
+      }
+    });
+    if (res.success) {
+      toast('✅ บันทึก Actual สำเร็จ' + (imageUrls.length ? ` พร้อมรูป ${imageUrls.length} รูป` : ''), 'success');
+      clearActual();
+      loadActualPage();
+    } else throw new Error(res.error);
+  } catch (e) { toast('เกิดข้อผิดพลาด: ' + e.message, 'error'); }
+}
+
+function clearActual() {
+  document.getElementById('actMoldId').value = '';
+  document.getElementById('actTPMId').innerHTML = '<option value="">-- เลือกแผน TPM --</option>';
+  document.getElementById('actDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('actBy').value = '';
+  document.getElementById('actRemarks').value = '';
+  checklistItems = [];
+  renderChecklistTable();
+  uploadedImages = [];
+  renderImgPreviews();
+}
+
+// ==========================================
+// HISTORY
+// ==========================================
+async function loadHistoryPage() {
+  if (!requireConnection()) return;
+  try {
+    const res = await callGS({ action: 'getMolds' });
+    moldsData = res.data || [];
+    populateMoldSelects();
+  } catch(e) { toast('โหลดข้อมูลโมลไม่ได้: ' + e.message, 'error'); }
+}
+
+async function loadHistory() {
+  if (!requireConnection()) return;
+  const moldId = document.getElementById('histMoldId').value;
+  const type = document.getElementById('histType').value;
+  const year = document.getElementById('histYear').value;
+  const el = document.getElementById('historyContent');
+  if (!moldId) { el.innerHTML = '<div class="empty"><div class="empty-icon">🕐</div><div class="empty-text">เลือกโมลเพื่อดูประวัติ</div></div>'; return; }
+  el.innerHTML = '<div class="loading"><div class="spinner"></div><span>กำลังโหลดประวัติ...</span></div>';
+  try {
+    const promises = [];
+    if (type === 'all' || type === 'shot') promises.push(callGS({ action: 'getShotHistory', moldId }));
+    if (type === 'all' || type === 'tpm') promises.push(callGS({ action: 'getTPMPlans', moldId }));
+    if (type === 'all' || type === 'actual') promises.push(callGS({ action: 'getActuals', moldId }));
+    const results = await Promise.all(promises);
+    let items = [];
+    let ri = 0;
+    if (type === 'all' || type === 'shot') { (results[ri++].data||[]).forEach(r => items.push({ ...r, _type: 'shot', _date: r.Date })); }
+    if (type === 'all' || type === 'tpm') { (results[ri++].data||[]).forEach(r => items.push({ ...r, _type: 'tpm', _date: r.ScheduledDate||r.CreatedDate })); }
+    if (type === 'all' || type === 'actual') { (results[ri++].data||[]).forEach(r => items.push({ ...r, _type: 'actual', _date: r.ActualDate })); }
+    if (year) items = items.filter(i => i._date && String(new Date(i._date).getFullYear()) === String(year));
+    items.sort((a,b) => new Date(b._date||0) - new Date(a._date||0));
+    if (!items.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">ไม่มีประวัติในช่วงที่เลือก</div></div>'; return; }
+    el.innerHTML = '<div class="timeline">' + items.map(item => {
+      if (item._type === 'shot') return `<div class="tl-item"><div class="tl-dot shot"></div><div class="tl-card"><div class="tl-date">🎯 Shot Count | ${item.Date ? item.Date.split('T')[0] : '-'}</div><div class="tl-title">เพิ่ม ${parseInt(item.AddedShot||0).toLocaleString()} shots | รวม: ${parseInt(item.TotalShot||0).toLocaleString()}</div><div class="tl-body">ผู้บันทึก: ${item.Operator||'-'} ${item.Remarks ? '| ' + item.Remarks : ''}</div></div></div>`;
+      if (item._type === 'tpm') return `<div class="tl-item"><div class="tl-dot tpm"></div><div class="tl-card"><div class="tl-date">📅 แผน TPM | ปี ${item.Year} | ${item.ScheduledDate ? item.ScheduledDate.split('T')[0] : '-'}</div><div class="tl-title">#${item.PlanNo} ${item.PlanName} <span class="badge ${item.Status==='Completed'?'badge-completed':'badge-planned'}" style="font-size:10px">${item.Status||'Planned'}</span></div><div class="tl-body">ความถี่: ${item.Frequency||'-'} | ${safeSplit(item.Tasks,'||').length} รายการงาน</div></div></div>`;
+      if (item._type === 'actual') {
+        const imgs = safeSplit(item.ImageURLs,'||');
+        const tasks = safeSplit(item.Tasks,'||');
+        return `<div class="tl-item"><div class="tl-dot actual"></div><div class="tl-card"><div class="tl-date">✅ Actual | ${item.ActualDate ? item.ActualDate.split('T')[0] : '-'}</div><div class="tl-title">ดำเนินการ ${tasks.length} รายการ</div><div class="tl-body">${tasks.slice(0,3).map(t=>'• '+t).join('<br>')}${tasks.length>3?`<br>+${tasks.length-3} รายการ`:''}<br>ผู้บันทึก: ${item.RecordedBy||'-'}</div>${imgs.length ? `<div class="tl-imgs">${imgs.map(url=>`<img class="tl-img" src="${url}" onclick="openLightbox('${url}')" onerror="this.style.display='none'">`).join('')}</div>` : ''}</div></div>`;
+      }
+    }).join('') + '</div>';
+  } catch (e) { el.innerHTML = '<div class="empty"><div class="empty-icon">❌</div><div class="empty-text">โหลดประวัติไม่ได้</div></div>'; toast('เกิดข้อผิดพลาด: ' + e.message, 'error'); }
+}
+
+// ==========================================
+// SYSTEM INIT
+// ==========================================
+async function initSystem() {
+  if (!requireConnection()) return;
+  if (!confirm('ต้องการติดตั้ง/สร้าง Sheets ใน Google Spreadsheet ที่กำหนดไว้ใน Code.gs?')) return;
+  try {
+    const res = await callGS({ action: 'initSheets' });
+    if (res && res.success) toast('✅ ติดตั้งระบบสำเร็จ Sheets ถูกสร้างแล้ว', 'success');
+    else toast('ตอบกลับ: ' + JSON.stringify(res), 'info');
+  } catch (e) { toast('เกิดข้อผิดพลาด: ' + e.message, 'error'); }
+}
+
+// ==========================================
+// MODAL HELPERS
+// ==========================================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// ==========================================
+// TOAST
+// ==========================================
+function toast(msg, type = 'info') {
+  const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `toast-item ${type}`;
+  el.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toast').appendChild(el);
+  requestAnimationFrame(() => { setTimeout(() => el.classList.add('show'), 10); });
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 4000);
+}
+
+// ==========================================
+// LIGHTBOX
+// ==========================================
+function openLightbox(url) {
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+
+// ==========================================
+// AUTO SHOT SYSTEM
+// ==========================================
+let autoShotConfigs = JSON.parse(localStorage.getItem('autoShotConfigs') || '[]');
+let autoShotTimers = {};
+
+function saveAutoShotConfigs() {
+  localStorage.setItem('autoShotConfigs', JSON.stringify(autoShotConfigs));
+}
+
+async function loadAutoShotPage() {
+  if (!requireConnection()) return;
+  // โหลด moldsData ก่อนเสมอ
+  try {
+    const res = await callGS({ action: 'getMolds' });
+    moldsData = res.data || [];
+  } catch(e) { toast('โหลดข้อมูลโมลไม่ได้: ' + e.message, 'error'); }
+  populateMoldSelects();
+  const yr = new Date().getFullYear();
+  document.getElementById('autoProdYear').value = yr;
+  document.getElementById('autoStartDate').value = new Date().toISOString().split('T')[0];
+  renderAutoShotList();
+  checkAndRestoreAutoShots();
+}
+
+function calcAutoShot() {
+  const annual = parseInt(document.getElementById('autoAnnualQty').value) || 0;
+  const days   = parseInt(document.getElementById('autoWorkDays').value) || 1;
+  const moldId = document.getElementById('autoMoldId').value;
+  const preview = document.getElementById('autoCalcPreview');
+
+  if (annual > 0 && days > 0) {
+    const daily   = Math.round(annual / days);
+    const monthly = Math.round(annual / 12);
+    document.getElementById('previewAnnual').textContent  = annual.toLocaleString() + ' pcs';
+    document.getElementById('previewDays').textContent    = days.toLocaleString() + ' วัน';
+    document.getElementById('previewDaily').textContent   = daily.toLocaleString() + ' pcs/day';
+    document.getElementById('previewMonthly').textContent = monthly.toLocaleString() + ' pcs/mo';
+    preview.style.display = '';
+
+    // คำนวณวันที่ Shot จะถึง limit
+    if (moldId) {
+      const mold = moldsData.find(m => m.ID === moldId);
+      if (mold) {
+        const remaining = parseInt(mold.ShotLimit||0) - parseInt(mold.CurrentShot||0);
+        if (remaining > 0 && daily > 0) {
+          const daysLeft = Math.ceil(remaining / daily);
+          const alertDate = new Date();
+          alertDate.setDate(alertDate.getDate() + daysLeft);
+          document.getElementById('previewShotAlert').innerHTML =
+            `⚠️ ด้วยยอดนี้ Shot จะถึง Limit ในอีก <b style="color:var(--warning)">${daysLeft} วัน</b> (ประมาณ ${alertDate.toLocaleDateString('th-TH')})`;
+        }
+      }
+    }
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
+function startAutoShot() {
+  const moldId   = document.getElementById('autoMoldId').value;
+  const annual   = parseInt(document.getElementById('autoAnnualQty').value);
+  const days     = parseInt(document.getElementById('autoWorkDays').value);
+  const startDate= document.getElementById('autoStartDate').value;
+  const runTime  = document.getElementById('autoRunTime').value;
+  const operator = document.getElementById('autoOperator').value || 'AutoSystem';
+  const year     = parseInt(document.getElementById('autoProdYear').value);
+  const noSat    = document.getElementById('noSat').checked;
+  const noSun    = document.getElementById('noSun').checked;
+
+  if (!moldId || !annual || !days) {
+    toast('กรุณาเลือกโมลและกรอกยอดผลิตต่อปี และจำนวนวันทำงาน', 'warning');
+    return;
+  }
+
+  const mold = moldsData.find(m => m.ID === moldId);
+  const daily = Math.round(annual / days);
+
+  // ลบ config เดิมของโมลนี้ (ถ้ามี)
+  autoShotConfigs = autoShotConfigs.filter(c => c.moldId !== moldId);
+
+  const config = {
+    id: 'AUTO-' + Date.now(),
+    moldId, moldName: mold ? mold.MoldName : moldId,
+    annualQty: annual, workDays: days, dailyQty: daily,
+    year, startDate, runTime, operator,
+    noSat, noSun,
+    active: true,
+    lastRun: null,
+    totalAutoShot: 0,
+    createdAt: new Date().toISOString()
+  };
+
+  autoShotConfigs.push(config);
+  saveAutoShotConfigs();
+  scheduleAutoShot(config);
+  renderAutoShotList();
+  updateAutoShotBar();
+  toast(`✅ เปิด Auto Shot สำหรับ ${mold ? mold.MoldName : moldId} | ${daily.toLocaleString()} pcs/วัน`, 'success');
+}
+
+function scheduleAutoShot(config) {
+  // Clear existing timer for this mold
+  if (autoShotTimers[config.moldId]) {
+    clearInterval(autoShotTimers[config.moldId]);
+  }
+
+  const checkAndRun = async () => {
+    if (!config.active) return;
+
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    const dayOfWeek = now.getDay(); // 0=Sun, 6=Sat
+
+    // ตรวจสอบวันหยุด
+    if (config.noSat && dayOfWeek === 6) return;
+    if (config.noSun && dayOfWeek === 0) return;
+
+    // ตรวจสอบเวลา
+    const [h, m] = config.runTime.split(':').map(Number);
+    if (now.getHours() !== h || now.getMinutes() !== m) return;
+
+    // ตรวจสอบว่าวันนี้รันไปแล้วหรือยัง
+    if (config.lastRun === today) return;
+
+    // รัน!
+    await executeAutoShot(config, today, 'Auto');
+  };
+
+  // เช็คทุก 30 วินาที
+  autoShotTimers[config.moldId] = setInterval(checkAndRun, 30000);
+}
+
+async function executeAutoShot(config, dateStr, mode) {
+  if (!requireConnection()) return false;
+  try {
+    const res = await callGS({
+      action: 'updateShot',
+      data: {
+        moldId: config.moldId,
+        productionQty: config.dailyQty,
+        operator: config.operator,
+        remarks: `[${mode}] Auto Shot | ${config.annualQty.toLocaleString()}/ปี ÷ ${config.workDays}วัน = ${config.dailyQty.toLocaleString()}/วัน`
+      }
+    });
+    if (res.success) {
+      // Update config
+      const idx = autoShotConfigs.findIndex(c => c.moldId === config.moldId);
+      if (idx >= 0) {
+        autoShotConfigs[idx].lastRun = dateStr;
+        autoShotConfigs[idx].totalAutoShot = (autoShotConfigs[idx].totalAutoShot || 0) + config.dailyQty;
+        saveAutoShotConfigs();
+      }
+      // Refresh molds data
+      const moldsRes = await callGS({ action: 'getMolds' });
+      moldsData = moldsRes.data || [];
+      renderAutoShotList();
+
+      const alertMsg = res.alertLevel === 'Critical' ? ' 🚨 CRITICAL!' : res.alertLevel === 'Warning' ? ' ⚠️ Warning' : '';
+      toast(`⚡ Auto Shot: ${config.moldName} +${config.dailyQty.toLocaleString()} shots | รวม: ${res.newShot.toLocaleString()}${alertMsg}`, res.alertLevel === 'Critical' ? 'error' : 'success');
+      return true;
+    } else {
+      toast('Auto Shot ล้มเหลว: ' + (res.error||'unknown'), 'error');
+      return false;
+    }
+  } catch(e) {
+    toast('Auto Shot error: ' + e.message, 'error');
+    return false;
+  }
+}
+
+async function runAutoShotNow() {
+  const moldId = document.getElementById('autoMoldId').value;
+  if (!moldId) { toast('กรุณาเลือกโมลก่อน', 'warning'); return; }
+
+  const annual  = parseInt(document.getElementById('autoAnnualQty').value);
+  const days    = parseInt(document.getElementById('autoWorkDays').value);
+  const operator= document.getElementById('autoOperator').value || 'AutoSystem';
+  if (!annual || !days) { toast('กรุณากรอกยอดผลิตต่อปีและจำนวนวันทำงานก่อน', 'warning'); return; }
+
+  const mold = moldsData.find(m => m.ID === moldId);
+  const daily = Math.round(annual / days);
+  const today = new Date().toISOString().split('T')[0];
+
+  const config = { moldId, moldName: mold?mold.MoldName:moldId, dailyQty: daily, annualQty: annual, workDays: days, operator };
+  toast(`⏳ กำลัง Run Auto Shot ${daily.toLocaleString()} pcs...`, 'info');
+  const ok = await executeAutoShot(config, today, 'Manual Run');
+  if (ok) {
+    // Update or create config
+    const existingIdx = autoShotConfigs.findIndex(c => c.moldId === moldId);
+    if (existingIdx >= 0) {
+      autoShotConfigs[existingIdx].lastRun = today;
+    }
+    saveAutoShotConfigs();
+    renderAutoShotList();
+  }
+}
+
+function stopAutoShot(moldId) {
+  if (moldId) {
+    const idx = autoShotConfigs.findIndex(c => c.moldId === moldId);
+    if (idx >= 0) autoShotConfigs[idx].active = false;
+    if (autoShotTimers[moldId]) clearInterval(autoShotTimers[moldId]);
+    saveAutoShotConfigs();
+    toast('⏹ หยุด Auto Shot แล้ว', 'info');
+  } else {
+    // หยุดทั้งหมด
+    autoShotConfigs.forEach(c => { c.active = false; if (autoShotTimers[c.moldId]) clearInterval(autoShotTimers[c.moldId]); });
+    saveAutoShotConfigs();
+    toast('⏹ หยุด Auto Shot ทั้งหมดแล้ว', 'info');
+  }
+  renderAutoShotList();
+  updateAutoShotBar();
+}
+
+function deleteAutoShot(moldId) {
+  if (!confirm('ลบ Auto Shot นี้?')) return;
+  autoShotConfigs = autoShotConfigs.filter(c => c.moldId !== moldId);
+  if (autoShotTimers[moldId]) clearInterval(autoShotTimers[moldId]);
+  saveAutoShotConfigs();
+  renderAutoShotList();
+  updateAutoShotBar();
+  toast('🗑️ ลบ Auto Shot แล้ว', 'info');
+}
+
+function resumeAutoShot(moldId) {
+  const idx = autoShotConfigs.findIndex(c => c.moldId === moldId);
+  if (idx < 0) return;
+  autoShotConfigs[idx].active = true;
+  saveAutoShotConfigs();
+  scheduleAutoShot(autoShotConfigs[idx]);
+  renderAutoShotList();
+  updateAutoShotBar();
+  toast('▶ Auto Shot ทำงานอีกครั้ง', 'success');
+}
+
+function renderAutoShotList() {
+  const tbody = document.getElementById('autoShotTable');
+  if (!tbody) return;
+  if (!autoShotConfigs.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--text3)">ยังไม่มี Auto Shot ที่ตั้งค่าไว้</td></tr>';
+    return;
+  }
+  tbody.innerHTML = autoShotConfigs.map(c => {
+    const mold = moldsData.find(m => m.ID === c.moldId);
+    const statusBadge = c.active
+      ? '<span class="badge badge-active" style="animation:pulse 2s infinite">⚡ Active</span>'
+      : '<span class="badge badge-inactive">⏹ Paused</span>';
+    return `<tr>
+      <td><div style="font-weight:600">${c.moldName}</div><div style="font-size:11px;color:var(--text3)">${c.moldId}</div></td>
+      <td style="font-family:var(--mono);color:var(--accent3);font-weight:700">${c.dailyQty.toLocaleString()}</td>
+      <td style="font-family:var(--mono)">${c.annualQty.toLocaleString()}</td>
+      <td style="font-family:var(--mono)">${c.workDays} วัน</td>
+      <td style="font-size:12px;font-family:var(--mono)">${c.startDate||'-'}</td>
+      <td style="font-size:12px;font-family:var(--mono);color:${c.lastRun?'var(--accent3)':'var(--text3)'}">${c.lastRun||'ยังไม่ได้รัน'}</td>
+      <td>${statusBadge}</td>
+      <td>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          ${c.active
+            ? `<button class="btn btn-warning btn-sm" onclick="stopAutoShot('${c.moldId}')">⏸</button>`
+            : `<button class="btn btn-success btn-sm" onclick="resumeAutoShot('${c.moldId}')">▶</button>`}
+          <button class="btn btn-primary btn-sm" onclick="runAutoShotNowById('${c.moldId}')" title="Run ทันที">⚡</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteAutoShot('${c.moldId}')">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function runAutoShotNowById(moldId) {
+  const config = autoShotConfigs.find(c => c.moldId === moldId);
+  if (!config) return;
+  if (!requireConnection()) return;
+  const today = new Date().toISOString().split('T')[0];
+  toast(`⏳ Run Auto Shot ${config.moldName}...`, 'info');
+  await executeAutoShot(config, today, 'Manual Run');
+}
+
+function updateAutoShotBar() {
+  const active = autoShotConfigs.filter(c => c.active);
+  const bar = document.getElementById('autoShotBar');
+  if (!bar) return;
+  if (active.length > 0) {
+    bar.style.display = 'flex';
+    document.getElementById('autoShotDesc').textContent =
+      active.map(c => `${c.moldName}: ${c.dailyQty.toLocaleString()}/วัน`).join(' | ');
+    const runTimes = active.map(c => c.runTime).filter((v,i,a)=>a.indexOf(v)===i);
+    document.getElementById('autoShotNext').textContent = 'รันเวลา: ' + runTimes.join(', ');
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+function checkAndRestoreAutoShots() {
+  // restore timers from localStorage
+  autoShotConfigs.forEach(config => {
+    if (config.active) scheduleAutoShot(config);
+  });
+  updateAutoShotBar();
+}
+
+// showPage unified above
+</script>
+</body>
+</html>
