@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>TPM Mold Management System</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -24,7 +24,7 @@
   --mono: 'IBM Plex Mono', monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
 
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:6px;height:6px;}
@@ -77,7 +77,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .stat-card.yellow::before{background:var(--warning);}
 .stat-card.red::before{background:var(--danger);}
 .stat-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;}
-.stat-value{font-size:32px;font-weight:700;font-family:var(--mono);}
+.stat-value{font-size:32px;font-weight:700;font-family:var(--mono);line-height:1.1;}
 .stat-card.blue .stat-value{color:var(--accent);}
 .stat-card.purple .stat-value{color:var(--accent2);}
 .stat-card.green .stat-value{color:var(--accent3);}
@@ -145,7 +145,10 @@ textarea.form-control{resize:vertical;min-height:80px;}
 /* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;backdrop-filter:blur(4px);}
 .modal-overlay.open{display:flex;align-items:center;justify-content:center;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:90%;max-width:640px;max-height:90vh;overflow-y:auto;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:90%;max-width:640px;max-height:90vh;overflow-y:auto;transition:transform .25s ease;}
+@media(max-width:600px){
+  .modal{transform:translateY(0);border-radius:16px 16px 0 0;width:100%;max-width:100%;max-height:88vh;}
+}
 .modal-header{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);padding-bottom:16px;border-bottom:1px solid var(--border);}
 .modal-title{font-size:16px;font-weight:700;}
 .modal-close{background:var(--surface2);border:none;color:var(--text2);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:.2s;}
@@ -255,11 +258,163 @@ textarea.form-control{resize:vertical;min-height:80px;}
 .mold-card-meta{display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:var(--text3);}
 
 /* RESPONSIVE */
-@media(max-width:768px){
+/* ============================================
+   RESPONSIVE — MOBILE FIRST
+   Target: Samsung Galaxy S23 Ultra (412×915)
+            iPhone 14/15 Pro (393×852)
+   ============================================ */
+
+/* ---- TABLET 768px ---- */
+@media(max-width:900px){
   .sidebar{display:none;}
+  .form-grid-3{grid-template-columns:1fr 1fr;}
+  .gs-url-input{width:200px;}
+}
+
+/* ---- MOBILE 600px ---- */
+@media(max-width:600px){
+  /* Header */
+  .header{padding:0 12px;height:52px;}
+  .logo-text{font-size:14px;}
+  .logo-sub{display:none;}
+  .logo-icon{width:30px;height:30px;font-size:15px;}
+  .gs-url-input{display:none;}
+  .btn-connect{display:none;}
+  .conn-status{font-size:11px;}
+  .conn-status .dot{width:9px;height:9px;}
+
+  /* Layout: no sidebar, full width */
+  .layout{flex-direction:column;}
+  .sidebar{display:none !important;}
+  .main{padding:12px 12px 80px;} /* bottom pad for nav bar */
+
+  /* Bottom nav bar */
+  .mobile-nav{
+    display:flex !important;
+    position:fixed;bottom:0;left:0;right:0;
+    background:var(--surface);
+    border-top:1px solid var(--border);
+    z-index:150;
+    height:60px;
+    padding:0;
+    box-shadow:0 -4px 20px rgba(0,0,0,.3);
+  }
+  .mobile-nav-item{
+    flex:1;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:2px;cursor:pointer;
+    color:var(--text3);transition:.15s;padding:6px 0;
+    font-size:9px;font-weight:600;letter-spacing:.3px;
+    border:none;background:none;
+    position:relative;
+  }
+  .mobile-nav-item .mn-icon{font-size:20px;line-height:1;}
+  .mobile-nav-item.active{color:var(--accent);}
+  .mobile-nav-item.active::before{
+    content:'';position:absolute;top:0;left:20%;right:20%;
+    height:2px;background:var(--accent);border-radius:2px;
+  }
+  .mobile-nav-more-btn{
+    flex:1;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:2px;cursor:pointer;
+    color:var(--text3);font-size:9px;font-weight:600;
+    border:none;background:none;
+  }
+  .mobile-nav-more-btn .mn-icon{font-size:20px;}
+
+  /* More menu drawer */
+  .mobile-more-drawer{
+    display:none;position:fixed;bottom:60px;left:0;right:0;
+    background:var(--surface);border-top:1px solid var(--border);
+    z-index:149;padding:8px 0;
+    box-shadow:0 -8px 30px rgba(0,0,0,.4);
+    max-height:50vh;overflow-y:auto;
+  }
+  .mobile-more-drawer.open{display:block;}
+  .mobile-more-item{
+    display:flex;align-items:center;gap:14px;
+    padding:13px 20px;font-size:14px;color:var(--text);cursor:pointer;
+  }
+  .mobile-more-item:active{background:var(--surface2);}
+  .mobile-more-item .mn-icon{font-size:20px;width:28px;text-align:center;}
+  .mobile-more-overlay{
+    display:none;position:fixed;inset:0;z-index:148;
+  }
+  .mobile-more-overlay.open{display:block;}
+
+  /* Stats grid: 2 col on mobile */
+  .stats-grid{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .stat-card{padding:12px;border-radius:10px;}
+  .stat-value{font-size:26px;}
+  .stat-icon{font-size:22px;bottom:6px;right:8px;}
+
+  /* Section */
+  .section{border-radius:10px;margin-bottom:14px;}
+  .section-header{padding:11px 14px;}
+  .section-title{font-size:13px;}
+  .section-body{padding:14px;}
+
+  /* Tables: scroll horizontal */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{font-size:12px;min-width:480px;}
+  th,td{padding:8px 10px;}
+
+  /* Page header */
+  .page-header{margin-bottom:16px;}
+  .page-title{font-size:18px;}
+  .page-subtitle{font-size:12px;}
+
+  /* Forms */
   .form-grid-2,.form-grid-3{grid-template-columns:1fr;}
+  .form-control{font-size:14px;padding:10px 12px;}
+  .form-label{font-size:11px;}
+
+  /* Modal */
+  .modal{width:96%;max-width:100%;border-radius:14px 14px 0 0;position:fixed;bottom:0;margin:0;}
+  .modal-overlay.open{align-items:flex-end;}
+  .modal-body{padding:16px;}
+  .modal-header{padding:16px 16px 12px;}
+  .modal-footer{padding:12px 16px;}
+
+  /* Mold cards */
+  .mold-cards{grid-template-columns:1fr;}
+
+  /* Buttons */
+  .btn{font-size:13px;padding:9px 14px;}
+  .btn-sm{padding:6px 10px;font-size:12px;}
+
+  /* Search bar */
+  .search-bar{flex-wrap:wrap;gap:8px;}
+  .search-input{font-size:13px;}
+  .filter-select{font-size:13px;}
+
+  /* Tabs */
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .tab{white-space:nowrap;padding:9px 14px;font-size:12px;}
+
+  /* Timeline */
+  .timeline{padding-left:22px;}
+  .tl-card{padding:10px 12px;}
+
+  /* Detail grid */
+  .detail-grid{grid-template-columns:1fr 1fr;}
+
+  /* Header right — show only connection dot */
+  .header-right{gap:6px;}
+}
+
+/* ---- VERY SMALL 380px (iPhone SE etc) ---- */
+@media(max-width:380px){
   .stats-grid{grid-template-columns:1fr 1fr;}
-  .gs-url-input{width:180px;}
+  .stat-value{font-size:22px;}
+  .mobile-nav-item{font-size:8px;}
+  .mobile-nav-item .mn-icon{font-size:18px;}
+}
+
+/* Desktop: hide mobile nav */
+@media(min-width:601px){
+  .mobile-nav{display:none !important;}
+  .mobile-more-drawer{display:none !important;}
+  .mobile-more-overlay{display:none !important;}
 }
 
 /* LIGHTBOX */
@@ -317,12 +472,30 @@ textarea.form-control{resize:vertical;min-height:80px;}
         <div class="page-subtitle">ภาพรวมสถานะโมลและแผน TPM ทั้งหมด</div>
       </div>
       <div class="stats-grid">
-        <div class="stat-card blue"><div class="stat-label">โมลทั้งหมด</div><div class="stat-value" id="statTotal">-</div><div class="stat-icon">⚙️</div></div>
-        <div class="stat-card green"><div class="stat-label">Active</div><div class="stat-value" id="statActive">-</div><div class="stat-icon">✅</div></div>
-        <div class="stat-card red"><div class="stat-label">Critical (Shot ≥90%)</div><div class="stat-value" id="statCritical">-</div><div class="stat-icon">🚨</div></div>
-        <div class="stat-card yellow"><div class="stat-label">Warning (Shot ≥70%)</div><div class="stat-value" id="statWarning">-</div><div class="stat-icon">⚠️</div></div>
-        <div class="stat-card purple"><div class="stat-label">TPM รอดำเนินการ</div><div class="stat-value" id="statTPM">-</div><div class="stat-icon">📅</div></div>
-        <div class="stat-card green" style="cursor:pointer;" onclick="showPage('autoshot')"><div class="stat-label">⚡ Auto Shot Active</div><div class="stat-value" id="statAutoShot">-</div><div class="stat-icon">🤖</div></div>
+        <div class="stat-card blue" style="cursor:pointer;" onclick="showStatMolds('all')" title="คลิกเพื่อดูโมลทั้งหมด">
+          <div class="stat-label">โมลทั้งหมด</div><div class="stat-value" id="statTotal">-</div><div class="stat-icon">⚙️</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:4px;">คลิกเพื่อดู ▶</div>
+        </div>
+        <div class="stat-card green" style="cursor:pointer;" onclick="showStatMolds('active')" title="คลิกเพื่อดูโมล Active">
+          <div class="stat-label">Active</div><div class="stat-value" id="statActive">-</div><div class="stat-icon">✅</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:4px;">คลิกเพื่อดู ▶</div>
+        </div>
+        <div class="stat-card red" style="cursor:pointer;" onclick="showStatMolds('critical')" title="คลิกเพื่อดูโมล Critical">
+          <div class="stat-label">Critical (Shot ≥90%)</div><div class="stat-value" id="statCritical">-</div><div class="stat-icon">🚨</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:4px;">คลิกเพื่อดู ▶</div>
+        </div>
+        <div class="stat-card yellow" style="cursor:pointer;" onclick="showStatMolds('warning')" title="คลิกเพื่อดูโมล Warning">
+          <div class="stat-label">Warning (Shot ≥70%)</div><div class="stat-value" id="statWarning">-</div><div class="stat-icon">⚠️</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:4px;">คลิกเพื่อดู ▶</div>
+        </div>
+        <div class="stat-card purple" style="cursor:pointer;" onclick="showStatMolds('tpm')" title="คลิกเพื่อดูแผน TPM ที่รอดำเนินการ">
+          <div class="stat-label">TPM รอดำเนินการ</div><div class="stat-value" id="statTPM">-</div><div class="stat-icon">📅</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:4px;">คลิกเพื่อดู ▶</div>
+        </div>
+        <div class="stat-card green" style="cursor:pointer;" onclick="showPage('autoshot')">
+          <div class="stat-label">⚡ Auto Shot Active</div><div class="stat-value" id="statAutoShot">-</div><div class="stat-icon">🤖</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:4px;">คลิกเพื่อดู ▶</div>
+        </div>
       </div>
       <div class="section">
         <div class="section-header">
@@ -331,6 +504,29 @@ textarea.form-control{resize:vertical;min-height:80px;}
         </div>
         <div class="section-body">
           <div id="dashMoldCards" class="mold-cards"><div class="loading"><div class="spinner"></div><span>กำลังโหลด...</span></div></div>
+        </div>
+      </div>
+
+      <!-- TPM PLAN STATUS -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">📅 สถานะแผน TPM ประจำโมล</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--danger);border-radius:50%;display:inline-block;"></span>ถึงกำหนดแล้ว</span>
+            <span style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--warning);border-radius:50%;display:inline-block;"></span>ใกล้ถึงกำหนด (&lt;1 เดือน)</span>
+            <span style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--accent3);border-radius:50%;display:inline-block;"></span>ปกติ</span>
+            <span style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--text3);border-radius:50%;display:inline-block;"></span>เสร็จแล้ว</span>
+          </div>
+        </div>
+        <div class="section-body" style="padding:0;">
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>โมล</th><th>ชื่อแผน</th><th>วันที่กำหนด</th><th>ความถี่</th><th>สถานะ TPM</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="dashTPMTable"><tr><td colspan="6"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -352,6 +548,12 @@ textarea.form-control{resize:vertical;min-height:80px;}
           <option value="Inactive">Inactive</option>
           <option value="critical">Critical</option>
           <option value="warning">Warning</option>
+        </select>
+        <select class="filter-select" id="moldVendorFilter" onchange="filterMolds()">
+          <option value="">ทุก Vendor</option>
+        </select>
+        <select class="filter-select" id="moldDeptFilter" onchange="filterMolds()">
+          <option value="">ทุกแผนก</option>
         </select>
       </div>
       <div class="section">
@@ -442,6 +644,39 @@ textarea.form-control{resize:vertical;min-height:80px;}
           </div>
         </div>
       </div>
+      <!-- EDIT CURRENT SHOT -->
+      <div class="section">
+        <div class="section-header"><div class="section-title">✏️ แก้ไข Shot ปัจจุบัน</div></div>
+        <div class="section-body">
+          <div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--warning);">
+            ⚠️ ใช้สำหรับแก้ไขข้อมูลที่บันทึกผิดพลาดเท่านั้น การแก้ไขจะบันทึกลงประวัติด้วย
+          </div>
+          <div class="form-grid form-grid-2">
+            <div class="form-group">
+              <label class="form-label">เลือกโมล *</label>
+              <select class="form-control" id="editShotMoldId" onchange="showEditShotInfo()">
+                <option value="">-- เลือกโมล --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Shot ปัจจุบัน</label>
+              <input type="text" class="form-control" id="editCurrentShotDisplay" readonly placeholder="-" style="color:var(--accent);font-family:var(--mono);">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Shot ใหม่ที่ต้องการแก้ไข *</label>
+              <input type="number" class="form-control" id="editNewShot" placeholder="กรอก Shot ที่ถูกต้อง" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">เหตุผลการแก้ไข *</label>
+              <input type="text" class="form-control" id="editShotReason" placeholder="เช่น บันทึกผิดพลาด, ตั้งค่าเริ่มต้นใหม่">
+            </div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:10px;">
+            <button class="btn btn-warning" onclick="saveEditShot()">💾 บันทึกการแก้ไข Shot</button>
+          </div>
+        </div>
+      </div>
+
       <div class="section">
         <div class="section-header">
           <div class="section-title">📋 ประวัติ Shot (เลือกโมล)</div>
@@ -651,10 +886,10 @@ textarea.form-control{resize:vertical;min-height:80px;}
               <table id="checklistTable" style="width:100%;border-collapse:collapse;font-size:12px;">
                 <thead>
                   <tr style="background:var(--surface2);">
-                    <th style="padding:8px 10px;text-align:center;width:40px;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;letter-spacing:.5px;">ลำดับ</th>
+                    <th style="padding:8px 10px;text-align:center;width:36px;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;letter-spacing:.5px;">ลำดับ</th>
                     <th style="padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;letter-spacing:.5px;">หัวข้อการตรวจสอบ</th>
-                    <th style="padding:8px 10px;text-align:left;width:35%;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;letter-spacing:.5px;">มาตรฐานการตรวจสอบ</th>
-                    <th style="padding:8px 10px;text-align:center;width:100px;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;letter-spacing:.5px;">การตัดสิน</th>
+                    <th style="padding:8px 10px;text-align:left;width:32%;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;letter-spacing:.5px;">มาตรฐานการตรวจสอบ</th>
+                    <th style="padding:8px 10px;text-align:center;width:110px;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;letter-spacing:.5px;">การตัดสิน</th>
                   </tr>
                 </thead>
                 <tbody id="checklistBody">
@@ -730,6 +965,71 @@ textarea.form-control{resize:vertical;min-height:80px;}
 
   </div><!-- /main -->
 </div><!-- /layout -->
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-item active" id="mnDashboard" onclick="mobileNav('dashboard')">
+    <span class="mn-icon">📊</span>Dashboard
+  </button>
+  <button class="mobile-nav-item" id="mnMolds" onclick="mobileNav('molds')">
+    <span class="mn-icon">⚙️</span>โมล
+  </button>
+  <button class="mobile-nav-item" id="mnShot" onclick="mobileNav('shot')">
+    <span class="mn-icon">🎯</span>Shot
+  </button>
+  <button class="mobile-nav-item" id="mnActual" onclick="mobileNav('actual')">
+    <span class="mn-icon">✅</span>Actual
+  </button>
+  <button class="mobile-nav-more-btn" onclick="toggleMobileMore()">
+    <span class="mn-icon">☰</span>
+    <span style="font-size:9px;font-weight:600;">เพิ่มเติม</span>
+  </button>
+</nav>
+
+<!-- MOBILE MORE DRAWER -->
+<div class="mobile-more-overlay" id="mobileMoreOverlay" onclick="closeMobileMore()"></div>
+<div class="mobile-more-drawer" id="mobileMoreDrawer">
+  <div class="mobile-more-item" onclick="mobileNav('tpmplan');closeMobileMore()">
+    <span class="mn-icon">📅</span>แผน TPM ประจำปี
+  </div>
+  <div class="mobile-more-item" onclick="mobileNav('autoshot');closeMobileMore()">
+    <span class="mn-icon">⚡</span>Auto Shot Settings
+  </div>
+  <div class="mobile-more-item" onclick="mobileNav('history');closeMobileMore()">
+    <span class="mn-icon">🕐</span>ประวัติย้อนหลัง
+  </div>
+  <div style="height:1px;background:var(--border);margin:6px 0;"></div>
+  <div class="mobile-more-item" onclick="showMobileSettings();closeMobileMore()">
+    <span class="mn-icon">🔗</span>ตั้งค่าการเชื่อมต่อ
+  </div>
+  <div class="mobile-more-item" onclick="initSystem();closeMobileMore()">
+    <span class="mn-icon">⚡</span>ติดตั้ง/Init ระบบ
+  </div>
+</div>
+
+<!-- MOBILE SETTINGS MODAL -->
+<div class="modal-overlay" id="mobileSettingsModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title">🔗 ตั้งค่าการเชื่อมต่อ</div>
+      <button class="modal-close" onclick="closeModal('mobileSettingsModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Google Apps Script URL</label>
+        <input class="form-control" id="gsUrlMobile" placeholder="https://script.google.com/macros/s/..." style="font-size:12px;">
+      </div>
+      <div style="margin-top:6px;" class="conn-status">
+        <div class="dot" id="connDotM"></div>
+        <span id="connTextM" style="font-size:12px;">ยังไม่เชื่อมต่อ</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('mobileSettingsModal')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="connectGSMobile()">🔗 เชื่อมต่อ</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL: ADD/EDIT MOLD -->
 <div class="modal-overlay" id="moldModal">
@@ -847,6 +1147,54 @@ textarea.form-control{resize:vertical;min-height:80px;}
 <!-- TOAST -->
 <div id="toast"></div>
 
+<!-- STAT MOLDS MODAL -->
+<div class="modal-overlay" id="statMoldsModal">
+  <div class="modal" style="max-width:900px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="statMoldsTitle">⚙️ รายการโมล</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px;" id="statMoldsCount"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('statMoldsModal')">✕</button>
+    </div>
+    <!-- Filter bar inside modal -->
+    <div style="padding:12px 24px;border-bottom:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <div style="position:relative;flex:1;min-width:160px;">
+        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px;">🔍</span>
+        <input class="form-control" id="statMoldsSearch" placeholder="ค้นหาโมล..." oninput="renderStatMoldsBody()" style="padding-left:32px;font-size:12px;">
+      </div>
+      <select class="filter-select" id="statMoldsVendor" onchange="renderStatMoldsBody()" style="font-size:12px;">
+        <option value="">ทุก Vendor</option>
+      </select>
+      <select class="filter-select" id="statMoldsDept" onchange="renderStatMoldsBody()" style="font-size:12px;">
+        <option value="">ทุกแผนก</option>
+      </select>
+    </div>
+    <div class="modal-body" style="padding:0;max-height:65vh;overflow-y:auto;">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>ชื่อโมล</th><th>Asset No.</th><th>Vendor</th><th>แผนก</th>
+            <th>Shot Count</th><th>สถานะ Shot</th><th>Status</th><th></th>
+          </tr></thead>
+          <tbody id="statMoldsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TPM HISTORY MODAL -->
+<div class="modal-overlay" id="tpmHistModal">
+  <div class="modal" style="max-width:800px;">
+    <div class="modal-header">
+      <div class="modal-title" id="tpmHistTitle">📋 ประวัติ TPM Actual</div>
+      <button class="modal-close" onclick="closeModal('tpmHistModal')">✕</button>
+    </div>
+    <div class="modal-body" id="tpmHistBody" style="padding:16px 24px;"></div>
+  </div>
+</div>
+
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close">✕</button>
@@ -857,7 +1205,7 @@ textarea.form-control{resize:vertical;min-height:80px;}
 // ==========================================
 // CONFIG & STATE
 // ==========================================
-let GS_URL = localStorage.getItem('gs_url') || 'https://script.google.com/macros/s/AKfycby_PUXm4alMV4tLqs2zm1YpKLNOYgRm1BBeVyAsu3k0BX0D93qjLl5g8DGxLAOmYerN/exec';
+let GS_URL = localStorage.getItem('gs_url') || 'https://script.google.com/macros/s/AKfycbz7Fl7BgVWxeNU96ehn10u9ggIkUGupWqHGDpDjyZdynhHupr6GsLqiKNbF53e4Ls2m/exec';
 let connected = false;
 let moldsData = [];
 let tpmPlans = [];
@@ -1038,7 +1386,87 @@ async function loadDashboard() {
       return;
     }
     el.innerHTML = alertMolds.map(m => moldCard(m, tpmPlans)).join('');
+    // Render TPM table
+    renderDashTPMTable();
   } catch (e) { toast('โหลด Dashboard ไม่ได้: ' + e.message, 'error'); }
+}
+
+function getTPMAlertLevel(plan) {
+  if (plan.Status === 'Completed') return 'done';
+  if (!plan.ScheduledDate) return 'normal';
+  const scheduled = new Date(plan.ScheduledDate);
+  const now = new Date();
+  const diffDays = Math.ceil((scheduled - now) / (1000*60*60*24));
+  if (diffDays <= 0) return 'overdue';       // ถึงกำหนดแล้ว/เลยกำหนด
+  if (diffDays <= 30) return 'soon';          // ใกล้ถึงกำหนด < 1 เดือน
+  return 'normal';
+}
+
+function renderDashTPMTable() {
+  const tbody = document.getElementById('dashTPMTable');
+  if (!tbody) return;
+  const plans = tpmPlans.filter(p => p.Status !== 'Completed' || 
+    (p.ScheduledDate && new Date(p.ScheduledDate) >= new Date(Date.now() - 30*24*60*60*1000)));
+  if (!plans.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text3)">ไม่มีแผน TPM ที่รอดำเนินการ</td></tr>';
+    return;
+  }
+  // Sort: overdue first, then soon, then normal, then done
+  const order = { overdue:0, soon:1, normal:2, done:3 };
+  plans.sort((a,b) => {
+    const la = order[getTPMAlertLevel(a)];
+    const lb = order[getTPMAlertLevel(b)];
+    if (la !== lb) return la - lb;
+    return new Date(a.ScheduledDate||0) - new Date(b.ScheduledDate||0);
+  });
+  tbody.innerHTML = plans.map(p => {
+    const mold = moldsData.find(m => m.ID === p.MoldID);
+    const level = getTPMAlertLevel(p);
+    const scheduled = p.ScheduledDate ? String(p.ScheduledDate).split('T')[0] : '-';
+    const diffDays = p.ScheduledDate ? Math.ceil((new Date(p.ScheduledDate)-new Date())/(1000*60*60*24)) : null;
+    let alertDot, alertBadge, rowStyle = '';
+    if (level === 'overdue') {
+      alertDot = `<span style="display:inline-block;width:10px;height:10px;background:var(--danger);border-radius:50%;box-shadow:0 0 6px var(--danger);animation:pulse 1.5s infinite;margin-right:6px;"></span>`;
+      alertBadge = `<span class="badge badge-critical">🔴 ถึงกำหนดแล้ว${diffDays!==null?' ('+Math.abs(diffDays)+'วันที่แล้ว)':''}</span>`;
+      rowStyle = 'background:rgba(239,68,68,.04);';
+    } else if (level === 'soon') {
+      alertDot = `<span style="display:inline-block;width:10px;height:10px;background:var(--warning);border-radius:50%;box-shadow:0 0 6px var(--warning);animation:pulse 2s infinite;margin-right:6px;"></span>`;
+      alertBadge = `<span class="badge badge-warning">🟡 อีก ${diffDays} วัน</span>`;
+      rowStyle = 'background:rgba(245,158,11,.03);';
+    } else if (level === 'done') {
+      alertDot = `<span style="display:inline-block;width:10px;height:10px;background:var(--text3);border-radius:50%;margin-right:6px;"></span>`;
+      alertBadge = `<span class="badge badge-completed">✅ เสร็จแล้ว</span>`;
+    } else {
+      alertDot = `<span style="display:inline-block;width:10px;height:10px;background:var(--accent3);border-radius:50%;margin-right:6px;"></span>`;
+      alertBadge = `<span class="badge badge-normal">🟢 ปกติ${diffDays!==null?' (อีก '+diffDays+'วัน)':''}</span>`;
+    }
+    return `<tr style="${rowStyle}border-bottom:1px solid var(--border);">
+      <td><div style="font-weight:600;font-size:13px;">${alertDot}${mold ? mold.MoldName : p.MoldID}</div><div style="font-size:11px;color:var(--text3);padding-left:16px;">${mold ? mold.AssetNo : ''}</div></td>
+      <td><div style="font-weight:500">${p.PlanName}</div><div style="font-size:11px;color:var(--text3)">ปี ${p.Year} #${p.PlanNo}</div></td>
+      <td style="font-family:var(--mono);font-size:12px;">${scheduled}</td>
+      <td style="font-size:12px;color:var(--text2)">${p.Frequency||'-'}</td>
+      <td>${alertBadge}</td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-secondary btn-sm" onclick="showTPMHistory('${p.MoldID}')">📋 ประวัติ</button>
+          <button class="btn btn-primary btn-sm" onclick="goActualForPlan('${p.ID}','${p.MoldID}')">✅ บันทึก</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function goActualForPlan(planId, moldId) {
+  showPage('actual');
+  setTimeout(() => {
+    document.getElementById('actMoldId').value = moldId;
+    loadTPMForMold();
+    setTimeout(() => {
+      document.getElementById('actTPMId').value = planId;
+      const ev = new Event('change');
+      document.getElementById('actTPMId').dispatchEvent(ev);
+    }, 300);
+  }, 200);
 }
 
 function getShotPct(mold) {
@@ -1093,6 +1521,7 @@ async function loadMolds() {
     moldsData = res.data || [];
     renderMoldsTable(moldsData);
     populateMoldSelects();
+    populateVendorDeptFilters();
   } catch (e) {
     toast('โหลดข้อมูลไม่ได้: ' + e.message, 'error');
     console.error('loadTPMPage error:', e);
@@ -1133,15 +1562,19 @@ function renderMoldsTable(molds) {
 }
 
 function filterMolds() {
-  const q = document.getElementById('moldSearch').value.toLowerCase();
-  const f = document.getElementById('moldFilter').value;
+  const q    = document.getElementById('moldSearch').value.toLowerCase();
+  const f    = document.getElementById('moldFilter').value;
+  const vend = document.getElementById('moldVendorFilter') ? document.getElementById('moldVendorFilter').value : '';
+  const dept = document.getElementById('moldDeptFilter')   ? document.getElementById('moldDeptFilter').value   : '';
   let filtered = moldsData.filter(m => {
     const match = (m.MoldName+m.AssetNo+m.Vendor+m.Department).toLowerCase().includes(q);
     if (!match) return false;
-    if (f === 'Active') return m.Status === 'Active';
+    if (f === 'Active')   return m.Status === 'Active';
     if (f === 'Inactive') return m.Status === 'Inactive';
     if (f === 'critical') return getShotPct(m) >= 90;
-    if (f === 'warning') return getShotPct(m) >= 70 && getShotPct(m) < 90;
+    if (f === 'warning')  return getShotPct(m) >= 70 && getShotPct(m) < 90;
+    if (vend && m.Vendor !== vend) return false;
+    if (dept && m.Department !== dept) return false;
     return true;
   });
   renderMoldsTable(filtered);
@@ -1257,7 +1690,7 @@ async function loadShotPage() {
 }
 
 function populateMoldSelects() {
-  const selects = ['shotMoldId','actMoldId','tpmMoldId','histMoldId','tpmMoldFilter','autoMoldId'];
+  const selects = ['shotMoldId','actMoldId','tpmMoldId','histMoldId','tpmMoldFilter','autoMoldId','editShotMoldId'];
   selects.forEach(id => {
     const sel = document.getElementById(id);
     if (!sel) return;
@@ -1508,9 +1941,23 @@ function initActTasks() {
 }
 
 function loadDefaultChecklist() {
-  checklistItems = DEFAULT_CHECKLIST.map(d => ({ topic: d.topic, std: d.std, result: '' }));
+  const pid = document.getElementById('actTPMId') ? document.getElementById('actTPMId').value : '';
+  if (pid) {
+    // ถ้าเลือกแผน TPM ไว้ ให้ดึง tasks จากแผนนั้น
+    const plan = tpmPlans.find(p => p.ID === pid);
+    if (plan) {
+      const tpmTasks = safeSplit(plan.Tasks, '||');
+      checklistItems = tpmTasks.length > 0
+        ? tpmTasks.map(t => ({ topic: t, std: '-', result: '', ngRemark: '' }))
+        : DEFAULT_CHECKLIST.map(d => ({ topic: d.topic, std: d.std, result: '', ngRemark: '' }));
+      renderChecklistTable();
+      toast('📋 โหลดรายการจากแผน TPM แล้ว', 'info');
+      return;
+    }
+  }
+  checklistItems = DEFAULT_CHECKLIST.map(d => ({ topic: d.topic, std: d.std, result: '', ngRemark: '' }));
   renderChecklistTable();
-  toast('📋 โหลด Checklist มาตรฐาน 10 รายการแล้ว', 'info');
+  toast('📋 โหลด Checklist มาตรฐาน 9 รายการแล้ว', 'info');
 }
 
 function setAllOK() {
@@ -1538,24 +1985,34 @@ function renderChecklistTable() {
   const tbody = document.getElementById('checklistBody');
   if (!tbody) return;
   if (!checklistItems.length) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text3)">กด "โหลด Checklist มาตรฐาน" หรือเพิ่มรายการด้านล่าง</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text3)">กด "โหลด Checklist มาตรฐาน" หรือเพิ่มรายการด้านล่าง</td></tr>';
     return;
   }
   tbody.innerHTML = checklistItems.map((item, i) => {
     const isOK = item.result === 'OK';
     const isNG = item.result === 'NG';
-    return `<tr style="border-bottom:1px solid var(--border);${isNG ? 'background:rgba(239,68,68,.05);' : ''}">
+    const ngRow = isNG ? `<tr style="background:rgba(239,68,68,.05);border-bottom:1px solid var(--border);">
+      <td></td><td colspan="4" style="padding:4px 10px 8px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:11px;color:var(--danger);font-weight:600;white-space:nowrap;">⚠️ สาเหตุ NG:</span>
+          <input type="text" value="${item.ngRemark||''}" 
+            oninput="checklistItems[${i}].ngRemark=this.value"
+            placeholder="ระบุสาเหตุที่พบ NG..."
+            style="flex:1;background:var(--surface2);border:1px solid var(--danger);color:var(--text);padding:4px 10px;border-radius:6px;font-size:12px;font-family:var(--font);">
+        </div>
+      </td></tr>` : '';
+    return `<tr style="border-bottom:${isNG?'none':'1px solid var(--border)'};${isNG ? 'background:rgba(239,68,68,.04);' : ''}">
       <td style="padding:8px 10px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3)">${i+1}</td>
       <td style="padding:8px 10px;font-size:12px;font-weight:500;line-height:1.5;">${item.topic}</td>
       <td style="padding:8px 10px;font-size:11px;color:var(--text2);line-height:1.5;">${item.std}</td>
       <td style="padding:8px 10px;text-align:center;">
         <div style="display:flex;gap:4px;justify-content:center;align-items:center;">
-          <button onclick="setItemResult(${i},'OK')" style="padding:3px 10px;border-radius:5px;border:1px solid ${isOK ? 'var(--accent3)' : 'var(--border)'};background:${isOK ? 'rgba(16,185,129,.2)' : 'var(--surface2)'};color:${isOK ? 'var(--accent3)' : 'var(--text3)'};font-size:11px;font-weight:700;cursor:pointer;transition:.15s;">OK</button>
-          <button onclick="setItemResult(${i},'NG')" style="padding:3px 10px;border-radius:5px;border:1px solid ${isNG ? 'var(--danger)' : 'var(--border)'};background:${isNG ? 'rgba(239,68,68,.2)' : 'var(--surface2)'};color:${isNG ? 'var(--danger)' : 'var(--text3)'};font-size:11px;font-weight:700;cursor:pointer;transition:.15s;">NG</button>
+          <button onclick="setItemResult(${i},'OK')" style="padding:3px 10px;border-radius:5px;border:1px solid ${isOK?'var(--accent3)':'var(--border)'};background:${isOK?'rgba(16,185,129,.2)':'var(--surface2)'};color:${isOK?'var(--accent3)':'var(--text3)'};font-size:11px;font-weight:700;cursor:pointer;transition:.15s;">OK</button>
+          <button onclick="setItemResult(${i},'NG')" style="padding:3px 10px;border-radius:5px;border:1px solid ${isNG?'var(--danger)':'var(--border)'};background:${isNG?'rgba(239,68,68,.2)':'var(--surface2)'};color:${isNG?'var(--danger)':'var(--text3)'};font-size:11px;font-weight:700;cursor:pointer;transition:.15s;">NG</button>
           <button onclick="removeChecklistItem(${i})" style="padding:3px 6px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text3);font-size:10px;cursor:pointer;">✕</button>
         </div>
       </td>
-    </tr>`;
+    </tr>${ngRow}`;
   }).join('');
 }
 
@@ -1575,15 +2032,14 @@ function loadTPMForMold() {
     const plan = tpmPlans.find(p => p.ID === pid);
     if (!plan) return;
     const tasks = safeSplit(plan.Tasks,'||');
-    // โหลด checklist มาตรฐานก่อน แล้ว mark tasks จาก TPM plan
-    checklistItems = DEFAULT_CHECKLIST.map(d => ({ topic: d.topic, std: d.std, result: '' }));
-    // เพิ่ม tasks จาก TPM plan ที่ไม่ซ้ำ
-    tasks.forEach(t => {
-      const exists = checklistItems.some(c => c.topic.toLowerCase().includes(t.toLowerCase().substring(0,10)));
-      if (!exists) checklistItems.push({ topic: t, std: '-', result: '' });
-    });
+    // ใช้ tasks จากแผน TPM โดยตรงเป็น checklist
+    if (tasks.length > 0) {
+      checklistItems = tasks.map(t => ({ topic: t, std: '-', result: '', ngRemark: '' }));
+    } else {
+      checklistItems = DEFAULT_CHECKLIST.map(d => ({ topic: d.topic, std: d.std, result: '', ngRemark: '' }));
+    }
     renderChecklistTable();
-    toast('📋 โหลดรายการจากแผน TPM + Checklist มาตรฐานแล้ว', 'info');
+    toast('📋 โหลดรายการจากแผน TPM แล้ว ' + tasks.length + ' รายการ', 'info');
   };
 }
 
@@ -1673,8 +2129,12 @@ async function saveActual() {
   const moldId = document.getElementById('actMoldId').value;
   const actDate = document.getElementById('actDate').value;
   const actBy = document.getElementById('actBy').value;
-  // เก็บจาก checklist
-  const tasks = checklistItems.map(item => `${item.topic} [${item.result || '-'}]${item.std !== '-' ? ' | ' + item.std : ''}`);
+  // เก็บจาก checklist รวม NG remark
+  const tasks = checklistItems.map(item => {
+    let t = `${item.topic} [${item.result || '-'}]`;
+    if (item.result === 'NG' && item.ngRemark) t += ` ⚠️NG: ${item.ngRemark}`;
+    return t;
+  });
   const ngItems = checklistItems.filter(i => i.result === 'NG');
   if (!moldId || !actDate || !checklistItems.length) { toast('กรุณากรอกข้อมูลและเพิ่มรายการตรวจสอบ', 'warning'); return; }
   if (ngItems.length > 0) {
@@ -1805,6 +2265,212 @@ function openLightbox(url) {
   document.getElementById('lightbox').classList.add('open');
 }
 function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+
+// ==============================================================
+// STAT CARD → MOLDS MODAL
+// ==============================================================
+let statMoldsFilter = 'all';
+
+function showStatMolds(type) {
+  statMoldsFilter = type;
+  const titles = {
+    all: '⚙️ โมลทั้งหมด',
+    active: '✅ โมล Active',
+    critical: '🚨 โมล Critical (Shot ≥ 90%)',
+    warning: '⚠️ โมล Warning (Shot ≥ 70%)',
+    tpm: '📅 โมลที่มี TPM รอดำเนินการ',
+  };
+  document.getElementById('statMoldsTitle').textContent = titles[type] || '⚙️ รายการโมล';
+
+  // Populate vendor/dept filters
+  const vendors = [...new Set(moldsData.map(m => m.Vendor).filter(Boolean))].sort();
+  const depts   = [...new Set(moldsData.map(m => m.Department).filter(Boolean))].sort();
+  const vSel = document.getElementById('statMoldsVendor');
+  const dSel = document.getElementById('statMoldsDept');
+  vSel.innerHTML = '<option value="">ทุก Vendor</option>' + vendors.map(v => `<option value="${v}">${v}</option>`).join('');
+  dSel.innerHTML = '<option value="">ทุกแผนก</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
+  document.getElementById('statMoldsSearch').value = '';
+
+  renderStatMoldsBody();
+  openModal('statMoldsModal');
+}
+
+function getStatMoldsFiltered() {
+  const q    = (document.getElementById('statMoldsSearch').value||'').toLowerCase();
+  const vend = document.getElementById('statMoldsVendor').value;
+  const dept = document.getElementById('statMoldsDept').value;
+  return moldsData.filter(m => {
+    // type filter
+    if (statMoldsFilter === 'active'   && m.Status !== 'Active') return false;
+    if (statMoldsFilter === 'critical' && getShotPct(m) < 90) return false;
+    if (statMoldsFilter === 'warning'  && (getShotPct(m) < 70 || getShotPct(m) >= 90)) return false;
+    if (statMoldsFilter === 'tpm'      && !tpmPlans.some(p => p.MoldID === m.ID && p.Status === 'Planned')) return false;
+    // search
+    if (q && !(m.MoldName+m.AssetNo+m.Vendor+m.Department).toLowerCase().includes(q)) return false;
+    if (vend && m.Vendor !== vend) return false;
+    if (dept && m.Department !== dept) return false;
+    return true;
+  });
+}
+
+function renderStatMoldsBody() {
+  const molds = getStatMoldsFiltered();
+  document.getElementById('statMoldsCount').textContent = `พบ ${molds.length} รายการ`;
+  const tbody = document.getElementById('statMoldsBody');
+  if (!molds.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">ไม่พบโมลที่ตรงเงื่อนไข</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = molds.map(m => {
+    const pct   = getShotPct(m);
+    const color = getShotColor(pct);
+    const lvlClass = pct>=90?'badge-critical':pct>=70?'badge-warning':'badge-normal';
+    const lvlLabel = pct>=90?'🚨 Critical':pct>=70?'⚠️ Warning':'✅ Normal';
+    const pendingTPM = tpmPlans.filter(p => p.MoldID === m.ID && p.Status === 'Planned').length;
+    return `<tr>
+      <td><div class="mold-name">${m.MoldName}</div><div style="font-size:11px;color:var(--text3)">${m.Department||''}</div></td>
+      <td><span class="asset-no">${m.AssetNo}</span></td>
+      <td>${m.Vendor||'-'}</td>
+      <td>${m.Department||'-'}</td>
+      <td style="min-width:130px;">
+        <div style="font-family:var(--mono);font-size:11px;margin-bottom:3px;">${parseInt(m.CurrentShot||0).toLocaleString()} / ${parseInt(m.ShotLimit||0).toLocaleString()}</div>
+        <div style="height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(pct,100)}%;height:100%;background:${color};border-radius:3px;"></div></div>
+        <div style="font-size:10px;color:${color};text-align:right;margin-top:1px;">${pct}%</div>
+      </td>
+      <td><span class="badge ${lvlClass}">${lvlLabel}</span></td>
+      <td><span class="badge ${m.Status==='Active'?'badge-active':'badge-inactive'}">${m.Status}</span>
+        ${pendingTPM>0?`<div style="font-size:10px;color:var(--accent2);margin-top:3px;">📅 TPM: ${pendingTPM}</div>`:''}
+      </td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-secondary btn-sm" onclick="closeModal('statMoldsModal');showMoldDetail('${m.ID}')">👁️</button>
+          <button class="btn btn-secondary btn-sm" onclick="closeModal('statMoldsModal');editMold('${m.ID}')">✏️</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ==============================================================
+// FILTER MOLDS PAGE - with Vendor & Dept
+// ==============================================================
+function populateVendorDeptFilters() {
+  const vendors = [...new Set(moldsData.map(m => m.Vendor).filter(Boolean))].sort();
+  const depts   = [...new Set(moldsData.map(m => m.Department).filter(Boolean))].sort();
+  const vSel = document.getElementById('moldVendorFilter');
+  const dSel = document.getElementById('moldDeptFilter');
+  if (!vSel || !dSel) return;
+  const curV = vSel.value, curD = dSel.value;
+  vSel.innerHTML = '<option value="">ทุก Vendor</option>' + vendors.map(v=>`<option value="${v}">${v}</option>`).join('');
+  dSel.innerHTML = '<option value="">ทุกแผนก</option>'   + depts.map(d=>`<option value="${d}">${d}</option>`).join('');
+  if (curV) vSel.value = curV;
+  if (curD) dSel.value = curD;
+}
+
+// ==============================================================
+// EDIT SHOT
+// ==============================================================
+function showEditShotInfo() {
+  const id = document.getElementById('editShotMoldId').value;
+  const m  = moldsData.find(x => x.ID === id);
+  document.getElementById('editCurrentShotDisplay').value = m ? parseInt(m.CurrentShot||0).toLocaleString() + ' shots' : '-';
+  document.getElementById('editNewShot').value = m ? parseInt(m.CurrentShot||0) : '';
+}
+
+async function saveEditShot() {
+  if (!requireConnection()) return;
+  const moldId = document.getElementById('editShotMoldId').value;
+  const newShot = document.getElementById('editNewShot').value;
+  const reason  = document.getElementById('editShotReason').value.trim();
+  if (!moldId || newShot === '') { toast('กรุณาเลือกโมลและกรอก Shot ใหม่', 'warning'); return; }
+  if (!reason) { toast('กรุณาระบุเหตุผลการแก้ไข', 'warning'); return; }
+  if (!confirm(`ยืนยันการแก้ไข Shot เป็น ${parseInt(newShot).toLocaleString()} shots?
+เหตุผล: ${reason}`)) return;
+  try {
+    const res = await callGS({
+      action: 'editShot',
+      data: { moldId, newShot: parseInt(newShot), reason, operator: 'Edit' }
+    });
+    if (res.success) {
+      toast(`✅ แก้ไข Shot เป็น ${parseInt(newShot).toLocaleString()} สำเร็จ`, 'success');
+      document.getElementById('editShotReason').value = '';
+      const moldsRes = await callGS({ action: 'getMolds' });
+      moldsData = moldsRes.data || [];
+      showEditShotInfo();
+      loadShotHistory(moldId);
+    } else throw new Error(res.error);
+  } catch(e) { toast('เกิดข้อผิดพลาด: ' + e.message, 'error'); }
+}
+
+// ==============================================================
+// TPM HISTORY VIEWER
+// ==============================================================
+async function showTPMHistory(moldId) {
+  if (!requireConnection()) return;
+  const mold = moldsData.find(m => m.ID === moldId);
+  document.getElementById('tpmHistTitle').textContent = '📋 ประวัติ TPM Actual — ' + (mold ? mold.MoldName : moldId);
+  document.getElementById('tpmHistBody').innerHTML = '<div class="loading"><div class="spinner"></div><span>กำลังโหลด...</span></div>';
+  openModal('tpmHistModal');
+  try {
+    const res = await callGS({ action: 'getActuals', moldId });
+    const actuals = res.data || [];
+    if (!actuals.length) {
+      document.getElementById('tpmHistBody').innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">ยังไม่มีประวัติ Actual สำหรับโมลนี้</div></div>';
+      return;
+    }
+    document.getElementById('tpmHistBody').innerHTML = actuals.map((a, idx) => {
+      const tasks = safeSplit(a.Tasks, '||');
+      const imgs = safeSplit(a.ImageURLs, '||');
+      const plan = tpmPlans.find(p => p.ID === a.TPMPlanID);
+      const dateStr = a.ActualDate ? String(a.ActualDate).split('T')[0] : '-';
+      // Separate OK/NG tasks
+      const okTasks = tasks.filter(t => t.includes('[OK]'));
+      const ngTasks = tasks.filter(t => t.includes('[NG]'));
+      const otherTasks = tasks.filter(t => !t.includes('[OK]') && !t.includes('[NG]'));
+      return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-weight:700;font-size:14px;">Actual #${actuals.length - idx}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px;">📅 ${dateStr} &nbsp;|&nbsp; 👤 ${a.RecordedBy||'-'} &nbsp;|&nbsp; 📋 ${plan ? plan.PlanName : (a.TPMPlanID || 'ไม่อ้างอิงแผน')}</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            ${okTasks.length ? `<span class="badge badge-completed">✅ OK: ${okTasks.length}</span>` : ''}
+            ${ngTasks.length ? `<span class="badge badge-critical">❌ NG: ${ngTasks.length}</span>` : ''}
+          </div>
+        </div>
+        ${tasks.length ? `<div style="margin-bottom:10px;">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;">รายการตรวจสอบ</div>
+          <div style="display:grid;gap:4px;">
+            ${tasks.map(t => {
+              const isOK = t.includes('[OK]');
+              const isNG = t.includes('[NG]');
+              const ngNote = isNG && t.includes('⚠️NG:') ? t.split('⚠️NG:')[1] : '';
+              return `<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 8px;border-radius:6px;background:${isNG?'rgba(239,68,68,.08)':isOK?'rgba(16,185,129,.05)':'var(--surface)'};border:1px solid ${isNG?'rgba(239,68,68,.2)':isOK?'rgba(16,185,129,.15)':'var(--border)'}">
+                <span style="font-size:12px;flex-shrink:0;">${isOK?'✅':isNG?'❌':'○'}</span>
+                <div style="flex:1;">
+                  <span style="font-size:12px;">${t.replace(/\s*\[(OK|NG|-)\]/,'').replace(/\s*⚠️NG:.*$/,'')}</span>
+                  ${ngNote ? `<div style="font-size:11px;color:var(--danger);margin-top:2px;">⚠️ สาเหตุ: ${ngNote}</div>` : ''}
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>` : ''}
+        ${a.Remarks ? `<div style="font-size:12px;color:var(--text2);background:var(--surface);padding:8px 12px;border-radius:6px;border:1px solid var(--border);margin-bottom:8px;">💬 ${a.Remarks}</div>` : ''}
+        ${imgs.length ? `<div>
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;">📷 รูปภาพ (${imgs.length})</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            ${imgs.map(url => `<img src="${url}" onclick="openLightbox('${url}')" 
+              style="width:80px;height:80px;border-radius:8px;object-fit:cover;border:1px solid var(--border);cursor:pointer;transition:.2s;" 
+              onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'"
+              onerror="this.style.display='none'">`).join('')}
+          </div>
+        </div>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('tpmHistBody').innerHTML = '<div class="empty"><div class="empty-icon">❌</div><div class="empty-text">โหลดประวัติไม่ได้: ' + e.message + '</div></div>';
+  }
+}
 
 // ==========================================
 // AUTO SHOT SYSTEM
@@ -2108,6 +2774,85 @@ function checkAndRestoreAutoShots() {
 }
 
 // showPage unified above
+
+// ==============================================================
+// MOBILE DETECTION & NAVIGATION
+// ==============================================================
+const isMobile = () => window.innerWidth <= 600;
+
+function mobileNav(name) {
+  showPage(name);
+  // Update mobile nav active state
+  const map = { dashboard:'mnDashboard', molds:'mnMolds', shot:'mnShot', actual:'mnActual' };
+  document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
+  if (map[name]) {
+    const el = document.getElementById(map[name]);
+    if (el) el.classList.add('active');
+  }
+}
+
+function toggleMobileMore() {
+  document.getElementById('mobileMoreDrawer').classList.toggle('open');
+  document.getElementById('mobileMoreOverlay').classList.toggle('open');
+}
+function closeMobileMore() {
+  document.getElementById('mobileMoreDrawer').classList.remove('open');
+  document.getElementById('mobileMoreOverlay').classList.remove('open');
+}
+
+function showMobileSettings() {
+  const el = document.getElementById('gsUrlMobile');
+  if (el) el.value = GS_URL || '';
+  syncConnStatusMobile();
+  openModal('mobileSettingsModal');
+}
+
+function syncConnStatusMobile() {
+  const dot  = document.getElementById('connDotM');
+  const text = document.getElementById('connTextM');
+  const srcDot  = document.getElementById('connDot');
+  const srcText = document.getElementById('connText');
+  if (dot && srcDot) dot.className = srcDot.className;
+  if (text && srcText) text.textContent = srcText.textContent;
+}
+
+async function connectGSMobile() {
+  const url = document.getElementById('gsUrlMobile').value.trim();
+  if (url) document.getElementById('gsUrl').value = url;
+  await connectGS();
+  syncConnStatusMobile();
+  if (connected) closeModal('mobileSettingsModal');
+}
+
+// Patch showPage to also update mobile nav active state
+const _origShowPageBase = showPage;
+function showPage(name) {
+  _origShowPageBase(name);
+  // sync mobile bottom nav
+  const map = { dashboard:'mnDashboard', molds:'mnMolds', shot:'mnShot', actual:'mnActual' };
+  document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
+  if (map[name]) {
+    const el = document.getElementById(map[name]);
+    if (el) el.classList.add('active');
+  }
+}
+
+// Mobile touch improvements: close more drawer on page change
+document.addEventListener('DOMContentLoaded', () => {
+  // Sync connection status to mobile UI periodically
+  setInterval(syncConnStatusMobile, 3000);
+  // Show mobile settings prompt if no URL set on mobile
+  if (isMobile() && !GS_URL) {
+    setTimeout(() => showMobileSettings(), 800);
+  }
+  // Handle safe-area insets for iPhone notch/dynamic island
+  const nav = document.getElementById('mobileNav');
+  if (nav && CSS.supports('padding-bottom', 'env(safe-area-inset-bottom)')) {
+    nav.style.paddingBottom = 'env(safe-area-inset-bottom)';
+    nav.style.height = 'calc(60px + env(safe-area-inset-bottom))';
+    document.querySelector('.main') && (document.querySelector('.main').style.paddingBottom = 'calc(80px + env(safe-area-inset-bottom))');
+  }
+});
 </script>
 </body>
 </html>
