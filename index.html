@@ -1252,14 +1252,26 @@ function setDefaultDates() {
 // ==========================================
 function showPage(name) {
   try {
+    // Hide all pages
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    // Clear sidebar active
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    // Show target page
     const pageEl = document.getElementById('page-' + name);
     if (!pageEl) { console.warn('Page not found: page-' + name); return; }
     pageEl.classList.add('active');
+    // Sidebar highlight
     document.querySelectorAll('.nav-item').forEach(n => {
       if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + name + "'")) n.classList.add('active');
     });
+    // Mobile bottom nav highlight
+    const mobileMap = { dashboard:'mnDashboard', molds:'mnMolds', shot:'mnShot', actual:'mnActual' };
+    document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
+    if (mobileMap[name]) {
+      const mb = document.getElementById(mobileMap[name]);
+      if (mb) mb.classList.add('active');
+    }
+    // Load page data
     if      (name === 'dashboard') loadDashboard();
     else if (name === 'molds')     loadMolds();
     else if (name === 'tpmplan')   loadTPMPage();
@@ -2781,14 +2793,8 @@ function checkAndRestoreAutoShots() {
 const isMobile = () => window.innerWidth <= 600;
 
 function mobileNav(name) {
-  showPage(name);
-  // Update mobile nav active state
-  const map = { dashboard:'mnDashboard', molds:'mnMolds', shot:'mnShot', actual:'mnActual' };
-  document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
-  if (map[name]) {
-    const el = document.getElementById(map[name]);
-    if (el) el.classList.add('active');
-  }
+  closeMobileMore();
+  showPage(name); // showPage already handles mobile nav highlight
 }
 
 function toggleMobileMore() {
@@ -2818,39 +2824,33 @@ function syncConnStatusMobile() {
 
 async function connectGSMobile() {
   const url = document.getElementById('gsUrlMobile').value.trim();
-  if (url) document.getElementById('gsUrl').value = url;
+  if (!url) { toast('กรุณาใส่ Google Apps Script URL', 'warning'); return; }
+  // Set into desktop input so connectGS() picks it up
+  document.getElementById('gsUrl').value = url;
+  GS_URL = url;
+  localStorage.setItem('gs_url', url);
   await connectGS();
   syncConnStatusMobile();
   if (connected) closeModal('mobileSettingsModal');
 }
 
-// Patch showPage to also update mobile nav active state
-const _origShowPageBase = showPage;
-function showPage(name) {
-  _origShowPageBase(name);
-  // sync mobile bottom nav
-  const map = { dashboard:'mnDashboard', molds:'mnMolds', shot:'mnShot', actual:'mnActual' };
-  document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
-  if (map[name]) {
-    const el = document.getElementById(map[name]);
-    if (el) el.classList.add('active');
-  }
-}
+// mobile nav sync is inside showPage directly
 
 // Mobile touch improvements: close more drawer on page change
-document.addEventListener('DOMContentLoaded', () => {
-  // Sync connection status to mobile UI periodically
-  setInterval(syncConnStatusMobile, 3000);
-  // Show mobile settings prompt if no URL set on mobile
-  if (isMobile() && !GS_URL) {
-    setTimeout(() => showMobileSettings(), 800);
-  }
-  // Handle safe-area insets for iPhone notch/dynamic island
+// Mobile init runs after main DOMContentLoaded
+window.addEventListener('load', () => {
+  setInterval(syncConnStatusMobile, 2000);
+  // Safe-area insets for iPhone Dynamic Island / Notch
   const nav = document.getElementById('mobileNav');
-  if (nav && CSS.supports('padding-bottom', 'env(safe-area-inset-bottom)')) {
+  if (nav && CSS && CSS.supports && CSS.supports('padding-bottom', 'env(safe-area-inset-bottom)')) {
     nav.style.paddingBottom = 'env(safe-area-inset-bottom)';
     nav.style.height = 'calc(60px + env(safe-area-inset-bottom))';
-    document.querySelector('.main') && (document.querySelector('.main').style.paddingBottom = 'calc(80px + env(safe-area-inset-bottom))');
+    const mainEl = document.querySelector('.main');
+    if (mainEl) mainEl.style.paddingBottom = 'calc(80px + env(safe-area-inset-bottom))';
+  }
+  // Mobile: show settings if no URL configured
+  if (window.innerWidth <= 600 && !GS_URL) {
+    setTimeout(() => showMobileSettings(), 600);
   }
 });
 </script>
